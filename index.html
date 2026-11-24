@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="km">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>ក្លែងធ្វើសៀគ្វីរ៉េឡេ - Simurelay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- ហៅកូដ CSS តាមលំដាប់ -->
+  <link rel="stylesheet" href="styles/fonts.css?v=1006">
+  <link rel="stylesheet" href="styles/variables.css?v=1006">
+  <link rel="stylesheet" href="styles/main.css?v=1006">
+</head>
+<body>
+  <nav id="menubar"></nav>
+  <div id="tb"></div>
+  <div id="mdrop" hidden></div>
+
+  <div id="wrap">
+    <svg id="cv" preserveAspectRatio="none"></svg>
+    <div id="legend">
+      <span class="leg"><i style="background:#d97706"></i>L1</span>
+      <span class="leg"><i style="background:#dc2626"></i>L2</span>
+      <span class="leg"><i style="background:#7c3aed"></i>L3</span>
+      <span class="leg"><i style="background:#0284c7"></i>N</span>
+      <span class="leg"><i style="background:#16a34a"></i>PE</span>
+    </div>
+    <div id="zm">
+      <button type="button" data-a="zout" title="ពង្រួម (−)">−</button>
+      <button type="button" data-a="fit" title="តម្រឹមកណ្តាល" style="font-size:14px">⊡</button>
+      <button type="button" data-a="zin" title="ពង្រីក (+)">+</button>
+    </div>
+    <div id="st">រួចរាល់</div>
+  </div>
+
+  <footer id="statusbar"></footer>
+
+  <div id="sheet" hidden></div>
+  <div id="bd" hidden data-a="close"></div>
+
+  <aside id="lib" hidden>
+    <div id="libh"><select id="cat"></select></div>
+    <div id="grid"></div>
+  </aside>
+
+  <aside id="menu" hidden>
+    <div class="mh">Simurelay ខ្មែរ<small id="pn">គម្រោងថ្មី</small></div>
+    <div id="menu-list">
+      <button type="button" data-a="exm">★ សៀគ្វីឧទាហរណ៍ (Simurelay)</button>
+      <button type="button" data-a="newp">＋ បង្កើតគម្រោងថ្មី</button>
+      <button type="button" data-a="openfile">📂 បើកឯកសារពីកុំព្យូទ័រ (.mcc)</button>
+      <button type="button" data-a="savefile">💾 រក្សាទុកទៅកុំព្យូទ័រ (.mcc)</button>
+      <button type="button" data-a="savefileas">📝 រក្សាទុកជាឈ្មោះថ្មី (.mcc)…</button>
+      <button type="button" data-a="ws">⌂ គម្រោងដែលបានរក្សាទុក</button>
+      <button type="button" data-a="set">⚙ ការកំណត់</button>
+      <button type="button" data-a="about">ⓘ របៀបប្រើប្រាស់</button>
+    </div>
+  </aside>
+
+  <div id="md" hidden>
+    <div class="card">
+      <h3 id="mt"></h3>
+      <div id="mb"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px">
+        <button type="button" class="b" data-a="mclose">បិទ</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="mcc-input" accept=".mcc,application/json" hidden>
+  <script type="module" src="js/main.js?v=1006"></script>
+</body>
+</html>
