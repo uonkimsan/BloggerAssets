@@ -1,0 +1,73 @@
+/* ==========================================================================
+ឯកសារ៖ styles/variables.css
+តួនាទី៖ កំណត់ពុម្ពអក្សរខ្មែរ និងអថេរពណ៌ (Light Mode / Dark Mode)
+========================================================================== */
+
+@font-face {
+font-family: 'Noto Sans Khmer';
+src: local('Noto Sans Khmer'),
+url('../fonts/NotoSansKhmer/NotoSansKhmer-Regular.woff2') format('woff2');
+font-weight: 400;
+font-style: normal;
+font-display: swap;
+}
+
+@font-face {
+font-family: 'Noto Sans Khmer';
+src: local('Noto Sans Khmer Bold'),
+url('../fonts/NotoSansKhmer/NotoSansKhmer-Bold.woff2') format('woff2');
+font-weight: 700;
+font-style: normal;
+font-display: swap;
+}
+
+/* ពណ៌សម្រាប់ផ្ទៃភ្លឺ (Light Mode - លំនាំដើម) */
+:root {
+--bg: #eef1f5;      /* ពណ៌ផ្ទៃខាងក្រោយទូទៅ */
+--panel: #ffffff;   /* ពណ៌ផ្ទាំងប៊ូតុង និងផ្ទាំងគូរប្លង់ */
+--tmdot: #1e293b;   /* ពណ៌ផ្ទាំងជើង Terminal*/
+--ink: #1b2432;     /* ពណ៌អក្សរ និងបន្ទាត់ឧបករណ៍ */
+--muted: #64748b;   /* ពណ៌អក្សររង (លេខជើងឧបករណ៍) */
+--grid: #cbd5e1;    /* ពណ៌ចំណុចក្រឡាចត្រង្គ */
+--off: #1b2432;     /* ពណ៌ខ្សែភ្លើងពេលគ្មានចរន្ត (ពណ៌ខ្មៅក្នុង Light Mode) */
+--on: #10b981;      /* ពណ៌បៃតងពេលឧបករណ៍ដំណើរការ */
+--lamp: #f59e0b;    /* ពណ៌លឿងពេលចង្កៀងភ្លឺ */
+--danger: #ef4444;  /* ពណ៌ក្រហមសម្រាប់បញ្ឈប់ ឬសៀគ្វីខ្លី */
+--accent: #0284c7;  /* ពណ៌ខៀវសម្រាប់ការជ្រើសរើស */
+box-sizing: border-box;
+padding-top: env(safe-area-inset-top, 0px);
+padding-bottom: env(safe-area-inset-bottom, 0px);
+color-scheme: light;
+}
+
+/* ពណ៌សម្រាប់ផ្ទៃងងឹតស្វ័យប្រវត្តិ (System Dark Mode) */
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #0f172a;
+--panel: #1e293b;
+--ink: #f1f5f9;
+--muted: #94a3b8;
+--grid: #334155;
+--off: #ffffff;   /* ពណ៌ខ្សែភ្លើងពេលគ្មានចរន្ត (ពណ៌សក្នុង Dark Mode) */
+--on: #34d399;
+--lamp: #fbbf24;
+--danger: #f87171;
+--accent: #38bdf8;
+color-scheme: dark;
+}
+}
+
+/* ពណ៌សម្រាប់ផ្ទៃងងឹតពេលអ្នកប្រើជ្រើសរើសដោយផ្ទាល់ */
+:root[data-theme="dark"] {
+--bg: #0f172a;
+--panel: #1e293b;
+--ink: #f1f5f9;
+--muted: #94a3b8;
+--grid: #334155;
+--off: #ffffff;     /* ពណ៌ខ្សែភ្លើងពេលគ្មានចរន្ត (ពណ៌សក្នុង Dark Mode) */
+--on: #34d399;
+--lamp: #fbbf24;
+--danger: #f87171;  
+--accent: #38bdf8;
+color-scheme: dark;
+}

@@ -1,0 +1,36 @@
+/* ==========================================================================
+ឯកសារ៖ styles/fonts.css
+តួនាទី៖ ភ្ជាប់ពុម្ពអក្សរខ្មែរ និងអង់គ្លេសពី Folder assets/fonts/
+========================================================================== */
+
+@font-face {
+font-family: 'Khmer OS Battambang';
+src: url('../assets/fonts/KhmerOSBattambang.ttf') format('truetype');
+font-weight: normal;
+font-style: normal;
+font-display: swap;
+}
+
+@font-face {
+font-family: 'Khmer OS Muol Light';
+src: url('../assets/fonts/KhmerOSMuolLight.ttf') format('truetype');
+font-weight: normal;
+font-style: normal;
+font-display: swap;
+}
+
+@font-face {
+font-family: 'Khmer OS Siemreap';
+src: url('../assets/fonts/KhmerOSSiemreap.ttf') format('truetype');
+font-weight: normal;
+font-style: normal;
+font-display: swap;
+}
+
+@font-face {
+font-family: 'Kantumruy Pro';
+src: url('../assets/fonts/KantumruyPro.ttf') format('truetype');
+font-weight: normal;
+font-style: normal;
+font-display: swap;
+}
