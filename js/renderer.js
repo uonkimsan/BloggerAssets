@@ -5,6 +5,7 @@
 import { state, Q, esc } from './state.js';
 import { G, COL, D, rot, tp, cond, pinOf } from './components.js';
 import { buildPolylines, makeHops, polyPath } from './wiring.js';
+import { computeFlow, polyDir } from './flow.js';
 
 // គូរសៀគ្វីទាំងមូលឡើងវិញលើផ្ទាំង SVG
 export function draw() {
@@ -42,11 +43,15 @@ export function draw() {
 
   // គូរខ្សែភ្លើងជា polyline ជាប់គ្នា (ជ្រុងមូល + ដៃលោតត្រង់ចំណុចកាត់គ្នាដែលមិនភ្ជាប់)
   const termKeys = new Set(state.els.flatMap(tp).map(p => p[0] + ',' + p[1]));
+  const flow = (state.sim && state.live && state.opt.flow !== false) ? computeFlow(state, D, tp) : null;   // ចរន្តរត់
+  const phase = ((state.flowT || 0) * 28) % 14;
   const hops = makeHops(state.wires, termKeys);
   buildPolylines(state.wires, termKeys).forEach(pl => {
     const d = polyPath(pl.pts, hops), sel = state.selW >= 0 && pl.idx.includes(state.selW);
+    const fd = sel ? 0 : polyDir(flow, pl);
+    const dash = fd ? `;stroke-linecap:butt;stroke-dasharray:8 6;stroke-dashoffset:${(fd > 0 ? -phase : phase).toFixed(2)}` : ''; // ជ្រើសខ្សែ = ជ្រើស polyline ទាំងមូល
     if (sel) h += `<path d="${d}" style="fill:none;stroke:#f59e0b;stroke-width:9;opacity:.3;stroke-linecap:round;stroke-linejoin:round"/>`;
-    h += `<path class="w" d="${d}" style="fill:none;stroke:${sel ? '#f59e0b' : col(pl.pts[0][0] + ',' + pl.pts[0][1])};stroke-linejoin:round;stroke-linecap:round"/>`;
+    h += `<path class="w" d="${d}" style="fill:none;stroke:${sel ? '#f59e0b' : col(pl.pts[0][0] + ',' + pl.pts[0][1])};stroke-linejoin:round;stroke-linecap:round${dash}"/>`;
   });
   Object.keys(deg).forEach(k => { if (deg[k] > 2) { const [x, y] = k.split(','); h += `<circle class="dot" cx="${x * G}" cy="${y * G}" r="3.6" style="fill:${col(k)}"/>`; } });
 

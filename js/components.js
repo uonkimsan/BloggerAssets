@@ -7,7 +7,7 @@ import { applyIcons } from './symbols.js';
 
 export const G = 20; // ទំហំ 1 ក្រឡាចត្រង្គ = 20px
 
-// ពណ៌ស្តង់ដារ IEC សម្រាប់ហ្វាសនីមួយៗ
+// ពណ៌ស្តង់ដារ IEC សម្រាប់ហ្វានីមួយៗ
 export const COL = {
   L1: '#d97706', L2: '#dc2626', L3: '#7c3aed',
   N:  '#0284c7', PE: '#16a34a', P:  '#e11d48', M:  '#2563eb'
@@ -55,7 +55,7 @@ export const D = {};
   };
 });
 D.src3ph = {
-  k: 'S', nm: 'ប្រភព 3 ហ្វាស (L1-L2-L3)', t: [[0, 0], [1, 0], [2, 0]], multiSrc: ['L1', 'L2', 'L3'], bb: [-6, -24, 46, 4],
+  k: 'S', nm: 'ប្រភព 3 ហ្វា (L1-L2-L3)', t: [[0, 0], [1, 0], [2, 0]], multiSrc: ['L1', 'L2', 'L3'], bb: [-6, -24, 46, 4],
   d: (e) => [0, 20, 40].map((x, i) => {
     const n = ['L1', 'L2', 'L3'][i];
     return P(`M${x} 0V-8`) + `<circle cx="${x}" cy="-15" r="7" style="stroke:${COL[n]};fill:${COL[n]}22"/>` + tx(e, n, x, -12, 8);
@@ -69,8 +69,8 @@ D.brk2 = { k: 'P', nm: 'ប្រេកគ័រ 2P', t: [[0, 0], [0, 2], [1, 0]
 D.brk3 = { k: 'P', nm: 'ប្រេកគ័រ 3P', t: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]], p: [[0, 1], [2, 3], [4, 5]], pre: 'Q', pins: ['1', '2', '3', '4', '5', '6'], bb: [-10, -4, 46, 44], c: e => state.tog.has(e.id), d: (e, s) => pole3(s, '<path stroke-dasharray="3 2" d="M-4 20H40"/>' + [0, 20, 40].map(a => P(`M${a - 3} 7L${a + 3} 13M${a + 3} 7L${a - 3} 13`)).join('')) };
 D.mbrk3 = { k: 'P', nm: 'ប្រេកគ័រម៉ូទ័រ', t: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]], p: [[0, 1], [2, 3], [4, 5]], pre: 'QM', pins: ['1', '2', '3', '4', '5', '6'], bb: [-12, -4, 46, 44], c: e => state.tog.has(e.id) && !state.tripped.has(e.tag), d: (e, s) => pole3(s, '<path stroke-dasharray="3 2" d="M-8 20H40"/><rect x="-11" y="15" width="6" height="10"/>' + [0, 20, 40].map(a => P(`M${a - 3} 7L${a + 3} 13M${a + 3} 7L${a - 3} 13`)).join('')) };
 D.ol3 = { k: 'P', nm: 'រ៉េឡេកម្ដៅ 3P', t: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]], p: [[0, 1], [2, 3], [4, 5]], pre: 'F', pins: ['1', '2', '3', '4', '5', '6'], bb: [-10, -4, 46, 44], c: e => !state.tripped.has(e.tag), d: (e, s) => [0, 20, 40].map(a => P(`M${a} 0V12H${a + 5}V20H${a - 5}V28H${a}V40`)).join('') + `<rect x="-6" y="10" width="52" height="20" rx="2" class="body ${s.tr ? 'trip' : ''}"/>` };
-D.olNC = { k: 'P', nm: 'ជំនួយកម្ដៅ NC (95-96)', t: [[0, 0], [2, 0]], p: [[0, 1]], pre: 'F', pins: ['95', '96'], bb: [0, -14, 40, 10], c: e => !state.tripped.has(e.tag), d: (e, s) => swH(s, ncBar) };
-D.olNO = { k: 'P', nm: 'ជំនួយកម្ដៅ NO (97-98)', t: [[0, 0], [2, 0]], p: [[0, 1]], pre: 'F', pins: ['97', '98'], bb: [0, -14, 40, 10], c: e => state.tripped.has(e.tag), d: (e, s) => swH(s) };
+D.olNC = { k: 'A', nm: 'ជំនួយកម្ដៅ NC (95-96)', t: [[0, 0], [2, 0]], p: [[0, 1]], pre: 'F', pins: ['95', '96'], bb: [0, -14, 40, 10], c: e => !state.tripped.has(e.tag), d: (e, s) => swH(s, ncBar) };
+D.olNO = { k: 'A', nm: 'ជំនួយកម្ដៅ NO (97-98)', t: [[0, 0], [2, 0]], p: [[0, 1]], pre: 'F', pins: ['97', '98'], bb: [0, -14, 40, 10], c: e => state.tripped.has(e.tag), d: (e, s) => swH(s) };
 
 // ៣. ប៊ូតុង និងកុងតាក់ (Buttons & Switches)
 D.btnNO = { k: 'W', nm: 'ប៊ូតុងចុច NO', t: [[0, 0], [2, 0]], p: [[0, 1]], pre: 'S', pins: ['13', '14'], bb: [0, -28, 40, 10], c: e => state.pressed.has(e.id), d: (e, s) => swH(s, btnAct(s)) };
@@ -98,8 +98,8 @@ D.lampTrip = { k: 'L', nm: 'ចង្កៀង Trip (ទឹកក្រូច)',
 D.buzz = { k: 'L', nm: 'សំឡេងរោទិ៍', t: [[0, 0], [2, 0]], pre: 'HA', pins: ['X1', 'X2'], ld: 1, bb: [0, -14, 40, 14], d: (e, s) => P('M0 0H12M28 0H40') + `<path d="M12 -10H22L28 -15V15L22 10H12Z" class="body ${s.on ? 'lamp' : ''}"/>` };
 
 // ៧. ម៉ូទ័រ (Motors)
-D.mot1 = { k: 'M', nm: 'ម៉ូទ័រ 1 ហ្វាស', t: [[0, 0], [2, 0]], ld: 1, pre: 'M', pins: ['U1', 'U2'], bb: [0, -16, 40, 16], d: (e, s) => P('M0 0H6M34 0H40') + `<circle cx="20" r="14" class="body ${s.on ? 'on' : ''}"/>` + tx(e, 'M 1~', 20, 4, 9) + (s.on ? spin(20, 0, s.a, 1) : '') };
-D.mot3 = { k: 'M', nm: 'ម៉ូទ័រ 3 ហ្វាស', t: [[0, 0], [1, 0], [2, 0]], ld: 3, pre: 'M', pins: ['U', 'V', 'W'], bb: [-4, -4, 44, 64], d: (e, s) => P('M0 0V24M20 0V18M40 0V24') + `<circle cx="20" cy="40" r="22" class="body ${s.on ? 'on' : ''}"/>` + tx(e, 'M 3~', 20, 44, 11) + (s.on ? spin(20, 40, s.a, s.dir || 1) : '') };
+D.mot1 = { k: 'M', nm: 'ម៉ូទ័រ 1 ហ្វា', t: [[0, 0], [2, 0]], ld: 1, pre: 'M', pins: ['U1', 'U2'], bb: [0, -16, 40, 16], d: (e, s) => P('M0 0H6M34 0H40') + `<circle cx="20" r="14" class="body ${s.on ? 'on' : ''}"/>` + tx(e, 'M 1~', 20, 4, 9) + (s.on ? spin(20, 0, s.a, 1) : '') };
+D.mot3 = { k: 'M', nm: 'ម៉ូទ័រ 3 ហ្វា', t: [[0, 0], [1, 0], [2, 0]], ld: 3, pre: 'M', pins: ['U', 'V', 'W'], bb: [-4, -4, 44, 64], d: (e, s) => P('M0 0V24M20 0V18M40 0V24') + `<circle cx="20" cy="40" r="22" class="body ${s.on ? 'on' : ''}"/>` + tx(e, 'M 3~', 20, 44, 11) + (s.on ? spin(20, 40, s.a, s.dir || 1) : '') };
 
 // ៨. អក្សរ & ចំណាំ (Text & Labels)
 D.txt = {

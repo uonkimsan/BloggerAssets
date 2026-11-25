@@ -27,6 +27,7 @@ export const state = {
   guides: null,           // alignment guide lines while dragging a part
   tagCol: '',             // custom tag colour ('' = default)
   pinCol: '',             // custom pin-label colour
+  flowT: 0,               // ពេលវេលាសម្រាប់ចលនាចរន្តរត់តាមខ្សែ
   last: 0,                // timestamp (ms) of last tick
   ang: 0,                 // មុំវិលរបស់ម៉ូទ័រ (0 - 360 ដឺក្រេ)
   hist: [],               // ប្រវត្តិសម្រាប់ Undo

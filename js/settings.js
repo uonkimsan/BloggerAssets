@@ -50,6 +50,7 @@ export function settingsUI() {
   const clr = (id, l, v) => `<label class="row" style="${w}"><span>${l}</span><input type="color" id="${id}" value="${v}"></label>`;
   return `<div class="row" style="${w}"><span>បង្ហាញក្រឡាចត្រង្គ</span><select id="s-grid"><option value="none">គ្មាន</option><option value="lines">បន្ទាត់</option><option value="dots">ចំណុច</option></select></div>` +
     tg('s-vib', 'ញ័រពេលចុច (Vibration)', o.vibrate) + tg('s-lib', 'បង្ហាញឧបករណ៍ជាក្រឡា (Grid)', !o.listLib) +
+    tg('s-flow', 'ចរន្តរត់តាមខ្សែពេលដំណើរការ (Animated current)', o.flow !== false) +
     tg('s-zoom', 'បង្ហាញផ្ទាំងពង្រីក', o.zoom) + tg('s-pins', 'បង្ហាញលេខជើង', o.pins) + tg('s-dark', 'របៀបងងឹត (Dark Mode)', dark) +
     '<h4 style="margin:12px 0 2px">ពណ៌</h4>' +
     clr('c-tag', 'ស្លាកឧបករណ៍', state.tagCol || '#0284c7') + clr('c-pin', 'ស្លាកជើង', state.pinCol || '#64748b') +

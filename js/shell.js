@@ -196,6 +196,8 @@ export function toggleLang() {
   buildToolbar();
   buildMenubar();
   setRunUi(state.sim);
+  if (helpers.rebuildLib) helpers.rebuildLib();
+  if (helpers.refreshSheet) helpers.refreshSheet();
   Object.keys(cache).forEach(k => delete cache[k]);
   refresh();
 }

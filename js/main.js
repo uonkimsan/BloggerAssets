@@ -10,7 +10,7 @@ import { EXAMPLES } from './examples.js';
 import { rerouteMoved, dragSegment, netSig, cleanWires, occupied, startMove, planMove, freeSpot, guidesFor, chainOf, mergeLeg } from './wiring.js';
 import { load as loadSettings, apply as applySettings, settingsUI, bindSettings, capture, save as saveSettings } from './settings.js';
 import { initShell, setRunUi, toggleLang, toggleTheme, keysHelp, refresh as refreshShell } from './shell.js';
-
+import { LIBRARY_CATEGORIES, LIBRARY_ITEMS, applyLibraryConfig } from './library.js';
 const vib = (ms = 12) => { if (state.opt.vibrate && navigator.vibrate) navigator.vibrate(ms); };
 
 const ser = () => JSON.stringify({
@@ -806,27 +806,73 @@ window.addEventListener('DOMContentLoaded', () => {
     else if (A[d.a]) A[d.a]();
   };
 
-  Q('#cat').innerHTML = '<option value="*">ទាំងអស់</option>' + Object.entries(CAT).map(([k, c]) => `<option value="${k}">${c[0]}</option>`).join('');
+  const renderCategories = () => {
+    const isEn = state.opt.lang === 'en';
+    const curVal = Q('#cat').value || '*';
+    Q('#cat').innerHTML = `<option value="*">${isEn ? 'All Components' : 'ទាំងអស់'}</option>` +
+      LIBRARY_CATEGORIES.map(c => `<option value="${c.id}">${isEn ? c.en : c.km}</option>`).join('');
+    Q('#cat').value = curVal;
+  };
   Q('#cat').onchange = e => document.querySelectorAll('.tile').forEach(t => t.hidden = e.target.value != '*' && t.dataset.k != e.target.value);
   const buildLib = () => {
-    Q('#grid').innerHTML = Object.entries(D).map(([t, d]) => {
+    const lang = state.opt.lang === 'en' ? 'en' : 'km';
+    applyLibraryConfig(D, lang);
+    renderCategories();
+    const curCat = Q('#cat').value || '*';
+    const orderedKeys = [
+      ...Object.keys(LIBRARY_ITEMS).filter(k => D[k]),
+      ...Object.keys(D).filter(k => !(k in LIBRARY_ITEMS))
+    ];
+    Q('#grid').innerHTML = orderedKeys.map(t => {
+      const d = D[t];
       const [b0, b1, b2, b3] = d.bb;
       const isHoriz2Pin = d.k !== 'M' && d.t && d.t.length === 2 && d.t[0][1] === d.t[1][1] && d.t[0][0] !== d.t[1][0];
       const libR = isHoriz2Pin ? 1 : 0;
       const e = { type: t, r: libR, x: 0, y: 0, tag: '', id: -1, sec: 3 };
       const vb = libR === 1
-        ? `${-b3 - 6} ${b0 - 6} ${b3 - b1 + 12} ${b2 - b0 + 12}`
-        : `${b0 - 6} ${b1 - 6} ${b2 - b0 + 12} ${b3 - b1 + 12}`;
+        ? `${-b3 - 2} ${b0 - 2} ${b3 - b1 + 4} ${b2 - b0 + 4}`
+        : `${b0 - 2} ${b1 - 2} ${b2 - b0 + 4} ${b3 - b1 + 4}`;
       const inner = libR === 1
         ? `<g transform="rotate(90)">${d.d(e, { on: 0, cl: 0, pr: 0, a: 0 })}</g>`
         : d.d(e, { on: 0, cl: 0, pr: 0, a: 0 });
-      return `<button class="tile" data-add="${t}" data-k="${d.k}"><svg viewBox="${vb}">${inner}</svg><small>${d.nm}</small></button>`;
+      const hideAttr = (curCat !== '*' && d.k !== curCat) ? ' hidden' : '';
+      return `<button class="tile" data-add="${t}" data-k="${d.k}" data-nm="${esc(d.nm)}" title="${esc(d.nm)}"${hideAttr}><svg viewBox="${vb}">${inner}</svg></button>`;
     }).join('');
   };
 
+  // បង្ហាញ Tooltip ឈ្មោះឧបករណ៍ពេលយកម៉ៅដាក់ពីលើ ឬយកដៃចុចលើនិមិត្តសញ្ញាក្នុងបណ្ណាល័យ
+  let libTip = Q('#lib-tip');
+  if (!libTip) {
+    libTip = document.createElement('div');
+    libTip.id = 'lib-tip';
+    libTip.hidden = true;
+    document.body.appendChild(libTip);
+  }
+  const showLibTip = (tile) => {
+    if (!tile || !tile.dataset.nm) { libTip.hidden = true; return; }
+    const r = tile.getBoundingClientRect();
+    libTip.textContent = tile.dataset.nm;
+    libTip.style.left = (r.left + r.width / 2) + 'px';
+    libTip.style.top = (r.top - 8) + 'px';
+    libTip.hidden = false;
+  };
+  gridEl.addEventListener('pointerover', ev => {
+    const tile = ev.target.closest('.tile[data-nm]');
+    if (tile) showLibTip(tile);
+  });
+  gridEl.addEventListener('pointerout', ev => {
+    if (!ev.relatedTarget || !ev.relatedTarget.closest?.('.tile[data-nm]')) libTip.hidden = true;
+  });
+  gridEl.addEventListener('pointerdown', ev => {
+    const tile = ev.target.closest('.tile[data-nm]');
+    if (tile) showLibTip(tile);
+  });
+  gridEl.addEventListener('scroll', () => { libTip.hidden = true; }, { passive: true });
+  window.addEventListener('pointerup', () => { setTimeout(() => { libTip.hidden = true; }, 900); });
+
   loadSettings({ rebuild: buildLib });
   applySettings();
-  initShell(A, { refreshSheet: sheet });
+  initShell(A, { refreshSheet: sheet, rebuildLib: buildLib });
 
   state.els = [];
   state.wires = [];

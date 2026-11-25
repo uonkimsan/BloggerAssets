@@ -203,6 +203,8 @@ export function tick() {
     });
   }
 
+  state.flowT = (state.flowT || 0) + dt;
+
   let r;
   for (let i = 0; i < 6; i++) {
     r = solve();
