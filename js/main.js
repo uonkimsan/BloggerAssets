@@ -809,8 +809,14 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   Q('#cat').onchange = e => document.querySelectorAll('.tile').forEach(t => t.hidden = e.target.value != '*' && t.dataset.k != e.target.value);
 
-  // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត (អេក្រង់ ≥ 768px) — លើកលែងទូរស័ព្ទដៃ
-  const isPhoneDevice = () => Math.min(window.innerWidth, window.innerHeight) < 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត — បិទតែលើទូរស័ព្ទដៃប៉ុណ្ណោះ
+  const isPhoneDevice = () => {
+    const ua = navigator.userAgent || '';
+    if (/iPad|Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return false; // iPad
+    if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false; // Android Tablet
+    if (/iPhone|iPod|Android.*Mobile|Windows Phone|BlackBerry/i.test(ua)) return true; // ទូរស័ព្ទដៃ
+    return Math.min(window.innerWidth, window.innerHeight) < 600;
+  };
   let libDrag = null;
   const clearLibDrag = () => { if (libDrag?.ghost) libDrag.ghost.remove(); libDrag = null; };
 
