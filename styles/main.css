@@ -363,3 +363,19 @@ font-weight: 700; font-size: 11px; cursor: pointer;
 box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
 }
 .gb.act { background: var(--on); border-color: var(--on); color: #fff; }
+/ ផ្ទាំងបង្ហាញឈ្មោះឧបករណ៍ពេលយកម៉ៅដាក់ពីលើ ឬចុចលើទូរស័ព្ទ */
+#lib-tip {
+position: fixed;
+z-index: 9999;
+transform: translate(-50%, -100%);
+padding: 6px 12px;
+border-radius: 8px;
+background: var(--ink);
+color: var(--panel);
+font-size: 13px;
+font-weight: 700;
+white-space: nowrap;
+pointer-events: none;
+box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+#lib-tip[hidden] { display: none; }
