@@ -50,10 +50,10 @@ export function draw() {
     const d = polyPath(pl.pts, hops), sel = state.selW >= 0 && pl.idx.includes(state.selW);
     const fd = sel ? 0 : polyDir(flow, pl);
     const dash = fd ? `;stroke-linecap:butt;stroke-dasharray:8 6;stroke-dashoffset:${(fd > 0 ? -phase : phase).toFixed(2)}` : ''; // ជ្រើសខ្សែ = ជ្រើស polyline ទាំងមូល
-    if (sel) h += `<path d="${d}" style="fill:none;stroke:#f59e0b;stroke-width:9;opacity:.3;stroke-linecap:round;stroke-linejoin:round"/>`;
-    h += `<path class="w" d="${d}" style="fill:none;stroke:${sel ? '#f59e0b' : col(pl.pts[0][0] + ',' + pl.pts[0][1])};stroke-linejoin:round;stroke-linecap:round${dash}"/>`;
+    if (sel) h += `<path d="${d}" style="fill:none;stroke:#f59e0b;stroke-width:7;opacity:.3;stroke-linecap:round;stroke-linejoin:round"/>`;
+    h += `<path class="w" d="${d}" style="fill:none;stroke:${sel ? '#f59e0b' : col(pl.pts[0][0] + ',' + pl.pts[0][1])};stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round${dash}"/>`;
   });
-  Object.keys(deg).forEach(k => { if (deg[k] > 2) { const [x, y] = k.split(','); h += `<circle class="dot" cx="${x * G}" cy="${y * G}" r="3.6" style="fill:${col(k)}"/>`; } });
+  Object.keys(deg).forEach(k => { if (deg[k] > 2) { const [x, y] = k.split(','); h += `<circle class="dot" cx="${x * G}" cy="${y * G}" r="2.2" style="fill:${col(k)}"/>`; } });
 
   // គូរឧបករណ៍នីមួយៗ ឈ្មោះសម្គាល់ (Tag) និងលេខជើង (Pins)
   state.els.forEach(e => {
@@ -119,7 +119,7 @@ export function draw() {
     }
 
     tp(e).forEach(([a, b], idx) => {
-      if (!state.sim) h += `<circle class="tm" cx="${a * G}" cy="${b * G}" r="3.2"/>`;
+      if (!state.sim) h += `<circle class="tm" cx="${a * G}" cy="${b * G}" r="2.5"/>`;
       const pn = pinOf(e, idx);
       if (state.opt.pins && pn) {
         if (e.type === 'ic_generator3ph' && pn === 'C1') {
