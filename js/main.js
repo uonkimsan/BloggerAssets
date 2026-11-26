@@ -665,12 +665,18 @@ window.addEventListener('DOMContentLoaded', () => {
         if (tpName.startsWith('btn') || tpName.startsWith('ic_button')) {
           state.pressed.add(e.id); vib(); tick(); return;
         }
-        if (tpName.startsWith('sw') || tpName.startsWith('brk') || tpName === 'estop' ||
+        // ពិនិត្យប្រភេទឧបករណ៍បិទ/បើកជាប់ (Toggle)៖ កុងតាក់ ប្រេកគ័រ E-Stop កុងតាក់កង់រមៀល និងហ្វុយស៊ីប (F1..F4)
+        // ពេលចុចម្តងវានឹងប្តូរស្ថានភាព (ពីជាប់ទៅចំហ ឬពីចំហទៅជាប់) រួចគណនាចរន្តអគ្គិសនីឡើងវិញភ្លាម
+        if (tpName.startsWith('sw') || tpName.startsWith('brk') || tpName === 'estop' || tpName === 'fuse' ||
             tpName.startsWith('ic_switch') || tpName.startsWith('ic_breaker') || tpName.startsWith('ic_tmbreaker') ||
             tpName.startsWith('ic_rcbo') || tpName.startsWith('ic_rccb') || tpName.startsWith('ic_motorbreaker') ||
             tpName.startsWith('ic_isolator') || tpName.startsWith('ic_emergency') || tpName.startsWith('ic_roller') ||
             tpName.startsWith('ic_fuse')) {
-          state.tog.has(e.id) ? state.tog.delete(e.id) : state.tog.add(e.id); vib(); tick(); return;
+          // បើឧបករណ៍មានក្នុងបញ្ជី state.tog ហើយ -> ដកចេញ (ត្រឡប់ទៅស្ថានភាពដើម); បើមិនទាន់មាន -> បន្ថែមចូល (ប្តូរស្ថានភាព)
+              state.tog.has(e.id) ? state.tog.delete(e.id) : state.tog.add(e.id); 
+              vib(); // បញ្ជាឱ្យទូរស័ព្ទញ័រតិចៗពេលចុច
+              tick(); // គណនាចរន្តអគ្គិសនី និងគូររូបភាពសៀគ្វីឡើងវិញភ្លាមៗ
+              return;
         }
       }
       state.mode = pan(); return;
@@ -748,7 +754,7 @@ window.addEventListener('DOMContentLoaded', () => {
     draw();
   };
 
-   // គាំទ្រទាំងការចុច (Click) និងការចាប់អូសទាញ (Pointer Drag & Drop) ពីបណ្ណាល័យ (#grid) ទៅកាន់ Canvas
+  // គាំទ្រទាំងការចុច (Click) និងការចាប់អូសទាញ (Pointer Drag & Drop) ពីបណ្ណាល័យ (#grid) ទៅកាន់ Canvas
   // ជំនួសចាប់ពី const buildLib = () => { រហូតដល់មុន loadSettings({ rebuild: buildLib });
   const gridEl = Q('#grid');
   let libTip = Q('#lib-tip');
@@ -800,16 +806,17 @@ window.addEventListener('DOMContentLoaded', () => {
       const vb = libR === 1
         ? `${-b3 - 2} ${b0 - 2} ${b3 - b1 + 4} ${b2 - b0 + 4}`
         : `${b0 - 2} ${b1 - 2} ${b2 - b0 + 4} ${b3 - b1 + 4}`;
+      const st0 = { on: 0, cl: D[t].c ? D[t].c(e) : 0, pr: 0, a: 0 };
       const inner = libR === 1
-        ? `<g transform="rotate(90)">${d.d(e, { on: 0, cl: 0, pr: 0, a: 0 })}</g>`
-        : d.d(e, { on: 0, cl: 0, pr: 0, a: 0 });
+        ? `<g transform="rotate(90)">${d.d(e, st0)}</g>`
+        : d.d(e, st0);
       const hiddenAttr = curCat !== '*' && d.k !== curCat ? ' hidden' : '';
       return `<button class="tile" data-add="${t}" data-k="${d.k}" data-nm="${esc(d.nm)}"${hiddenAttr}><svg viewBox="${vb}">${inner}</svg></button>`;
     }).join('');
   };
   Q('#cat').onchange = e => document.querySelectorAll('.tile').forEach(t => t.hidden = e.target.value != '*' && t.dataset.k != e.target.value);
 
-  // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត — បិទតែលើទូរស័ព្ទដៃប៉ុណ្ណោះ
+ // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត — បិទតែលើទូរស័ព្ទដៃប៉ុណ្ណោះ
   const isPhoneDevice = () => {
     const ua = navigator.userAgent || '';
     if (/iPad|Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return false; // iPad
@@ -880,6 +887,7 @@ window.addEventListener('DOMContentLoaded', () => {
     else if (d.x) { LS.del('rly:' + d.x); A.ws(); }
     else if (A[d.a]) A[d.a]();
   };
+
 
   state.els = [];
   state.wires = [];
