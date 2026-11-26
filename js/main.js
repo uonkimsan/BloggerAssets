@@ -748,82 +748,50 @@ window.addEventListener('DOMContentLoaded', () => {
     draw();
   };
 
-  // គាំទ្រទាំងការចុច (Click) និងការចាប់អូសទាញ (Pointer Drag & Drop) ពីបណ្ណាល័យ (#grid) ទៅកាន់ Canvas
-  let libDrag = null;
+   // គាំទ្រទាំងការចុច (Click) និងការចាប់អូសទាញ (Pointer Drag & Drop) ពីបណ្ណាល័យ (#grid) ទៅកាន់ Canvas
+  // ជំនួសចាប់ពី const buildLib = () => { រហូតដល់មុន loadSettings({ rebuild: buildLib });
   const gridEl = Q('#grid');
-  gridEl.addEventListener('pointerdown', ev => {
-    if (state.sim || ev.button !== 0) return;
-    const tile = ev.target.closest('.tile[data-add]');
-    if (!tile) return;
-    libDrag = { type: tile.dataset.add, x0: ev.clientX, y0: ev.clientY, ghost: null, dragging: false };
-  });
-
-  window.addEventListener('pointermove', ev => {
-    if (!libDrag) return;
-    if (!libDrag.dragging && Math.hypot(ev.clientX - libDrag.x0, ev.clientY - libDrag.y0) > 8) {
-      libDrag.dragging = true;
-      const g = document.createElement('div');
-      g.textContent = D[libDrag.type]?.nm || libDrag.type;
-      g.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);transform:translate(-50%,-50%)';
-      document.body.appendChild(g);
-      libDrag.ghost = g;
-    }
-    if (libDrag.ghost) {
-      libDrag.ghost.style.left = ev.clientX + 'px';
-      libDrag.ghost.style.top = ev.clientY + 'px';
-    }
-  });
-
-  window.addEventListener('pointerup', ev => {
-    if (!libDrag) return;
-    const cur = libDrag;
-    libDrag = null;
-    if (cur.ghost) cur.ghost.remove();
-    if (cur.dragging) {
-      const r = svg.getBoundingClientRect();
-      const libRect = Q('#lib')?.getBoundingClientRect();
-      const overLib = libRect && !Q('#lib').hidden && ev.clientX >= libRect.left && ev.clientX <= libRect.right && ev.clientY >= libRect.top && ev.clientY <= libRect.bottom;
-      if (!overLib && ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) {
-        const [px, py] = pos(ev);
-        place(cur.type, '', [Math.round(px / G), Math.round(py / G)], true);
-      }
-    }
-  });
-
-  document.onclick = ev => {
-    const t = ev.target.closest('[data-a],[data-add],[data-o],[data-x],[data-ex],[data-gm]');
-    if (!t) return;
-    const d = t.dataset;
-    if (d.gm && state.genSel != null) {
-      state.genMode = state.genMode || {};
-      state.genMode[state.genSel] = d.gm;
-      vib(); sheet(); tick(); return;
-    }
-    if (d.add) place(d.add, '', null, true);
-    else if (d.ex) { A.mclose(); loadExample(d.ex); }
-    else if (d.o) { const s = LS.get('rly:' + d.o); if (s) { try { load(JSON.parse(s)); state.proj = d.o; A.mclose(); refreshShell(); } catch (_) {} } }
-    else if (d.x) { LS.del('rly:' + d.x); A.ws(); }
-    else if (A[d.a]) A[d.a]();
+  let libTip = Q('#lib-tip');
+  if (!libTip) {
+    libTip = document.createElement('div');
+    libTip.id = 'lib-tip';
+    libTip.hidden = true;
+    document.body.appendChild(libTip);
+  }
+  const showTip = tile => {
+    if (!tile || !tile.dataset.nm) { libTip.hidden = true; return; }
+    const r = tile.getBoundingClientRect();
+    libTip.textContent = tile.dataset.nm;
+    libTip.style.left = Math.max(60, Math.min(window.innerWidth - 60, r.left + r.width / 2)) + 'px';
+    libTip.style.top = Math.max(36, r.top - 6) + 'px';
+    libTip.hidden = false;
   };
+  const hideTip = () => { libTip.hidden = true; };
 
-  const renderCategories = () => {
-    const isEn = state.opt.lang === 'en';
-    const curVal = Q('#cat').value || '*';
-    Q('#cat').innerHTML = `<option value="*">${isEn ? 'All Components' : 'ទាំងអស់'}</option>` +
-      LIBRARY_CATEGORIES.map(c => `<option value="${c.id}">${isEn ? c.en : c.km}</option>`).join('');
-    Q('#cat').value = curVal;
-  };
-  Q('#cat').onchange = e => document.querySelectorAll('.tile').forEach(t => t.hidden = e.target.value != '*' && t.dataset.k != e.target.value);
+  gridEl.addEventListener('pointerover', ev => {
+    if (ev.pointerType === 'mouse') {
+      const tile = ev.target.closest('.tile[data-nm]');
+      tile ? showTip(tile) : hideTip();
+    }
+  });
+  gridEl.addEventListener('pointerout', ev => {
+    if (ev.pointerType === 'mouse' && !gridEl.contains(ev.relatedTarget)) hideTip();
+  });
+  gridEl.addEventListener('scroll', hideTip, { passive: true });
+
   const buildLib = () => {
     const lang = state.opt.lang === 'en' ? 'en' : 'km';
     applyLibraryConfig(D, lang);
-    renderCategories();
     const curCat = Q('#cat').value || '*';
+    Q('#cat').innerHTML = `<option value="*">${lang === 'en' ? 'All Components' : 'ទាំងអស់'}</option>` +
+      LIBRARY_CATEGORIES.map(c => `<option value="${c.id}">${lang === 'en' ? c.en : c.km}</option>`).join('');
+    Q('#cat').value = curCat;
+
     const orderedKeys = [
       ...Object.keys(LIBRARY_ITEMS).filter(k => D[k]),
       ...Object.keys(D).filter(k => !(k in LIBRARY_ITEMS))
     ];
-    Q('#grid').innerHTML = orderedKeys.map(t => {
+    gridEl.innerHTML = orderedKeys.map(t => {
       const d = D[t];
       const [b0, b1, b2, b3] = d.bb;
       const isHoriz2Pin = d.k !== 'M' && d.t && d.t.length === 2 && d.t[0][1] === d.t[1][1] && d.t[0][0] !== d.t[1][0];
@@ -835,44 +803,77 @@ window.addEventListener('DOMContentLoaded', () => {
       const inner = libR === 1
         ? `<g transform="rotate(90)">${d.d(e, { on: 0, cl: 0, pr: 0, a: 0 })}</g>`
         : d.d(e, { on: 0, cl: 0, pr: 0, a: 0 });
-      const hideAttr = (curCat !== '*' && d.k !== curCat) ? ' hidden' : '';
-      return `<button class="tile" data-add="${t}" data-k="${d.k}" data-nm="${esc(d.nm)}" title="${esc(d.nm)}"${hideAttr}><svg viewBox="${vb}">${inner}</svg></button>`;
+      const hiddenAttr = curCat !== '*' && d.k !== curCat ? ' hidden' : '';
+      return `<button class="tile" data-add="${t}" data-k="${d.k}" data-nm="${esc(d.nm)}"${hiddenAttr}><svg viewBox="${vb}">${inner}</svg></button>`;
     }).join('');
   };
+  Q('#cat').onchange = e => document.querySelectorAll('.tile').forEach(t => t.hidden = e.target.value != '*' && t.dataset.k != e.target.value);
 
-  // បង្ហាញ Tooltip ឈ្មោះឧបករណ៍ពេលយកម៉ៅដាក់ពីលើ ឬយកដៃចុចលើនិមិត្តសញ្ញាក្នុងបណ្ណាល័យ
-  let libTip = Q('#lib-tip');
-  if (!libTip) {
-    libTip = document.createElement('div');
-    libTip.id = 'lib-tip';
-    libTip.hidden = true;
-    document.body.appendChild(libTip);
-  }
-  const showLibTip = (tile) => {
-    if (!tile || !tile.dataset.nm) { libTip.hidden = true; return; }
-    const r = tile.getBoundingClientRect();
-    libTip.textContent = tile.dataset.nm;
-    libTip.style.left = (r.left + r.width / 2) + 'px';
-    libTip.style.top = (r.top - 8) + 'px';
-    libTip.hidden = false;
-  };
-  gridEl.addEventListener('pointerover', ev => {
-    const tile = ev.target.closest('.tile[data-nm]');
-    if (tile) showLibTip(tile);
-  });
-  gridEl.addEventListener('pointerout', ev => {
-    if (!ev.relatedTarget || !ev.relatedTarget.closest?.('.tile[data-nm]')) libTip.hidden = true;
-  });
+  // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត (អេក្រង់ ≥ 768px) — លើកលែងទូរស័ព្ទដៃ
+  const isPhoneDevice = () => Math.min(window.innerWidth, window.innerHeight) < 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  let libDrag = null;
+  const clearLibDrag = () => { if (libDrag?.ghost) libDrag.ghost.remove(); libDrag = null; };
+
   gridEl.addEventListener('pointerdown', ev => {
-    const tile = ev.target.closest('.tile[data-nm]');
-    if (tile) showLibTip(tile);
+    const tile = ev.target.closest('.tile[data-add]');
+    if (tile && ev.pointerType !== 'mouse') {
+      showTip(tile);
+      setTimeout(hideTip, 1200);
+    }
+    if (state.sim || ev.button !== 0 || isPhoneDevice()) return;
+    if (tile) libDrag = { type: tile.dataset.add, ptrId: ev.pointerId, x0: ev.clientX, y0: ev.clientY, ghost: null, dragging: false };
   });
-  gridEl.addEventListener('scroll', () => { libTip.hidden = true; }, { passive: true });
-  window.addEventListener('pointerup', () => { setTimeout(() => { libTip.hidden = true; }, 900); });
-
+  window.addEventListener('pointermove', ev => {
+    if (!libDrag || ev.pointerId !== libDrag.ptrId) return;
+    if (!libDrag.dragging && Math.hypot(ev.clientX - libDrag.x0, ev.clientY - libDrag.y0) > 10) {
+      libDrag.dragging = true;
+      hideTip();
+      const g = document.createElement('div');
+      g.textContent = D[libDrag.type]?.nm || libDrag.type;
+      g.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);transform:translate(-50%,-50%)';
+      document.body.appendChild(g);
+      libDrag.ghost = g;
+    }
+    if (libDrag.ghost) {
+      libDrag.ghost.style.left = ev.clientX + 'px';
+      libDrag.ghost.style.top = ev.clientY + 'px';
+    }
+  });
+  window.addEventListener('pointerup', ev => {
+    if (!libDrag || ev.pointerId !== libDrag.ptrId) return;
+    const cur = libDrag;
+    clearLibDrag();
+    if (cur.dragging) {
+      const r = svg.getBoundingClientRect();
+      const libRect = Q('#lib')?.getBoundingClientRect();
+      const overLib = libRect && !Q('#lib').hidden && ev.clientX >= libRect.left && ev.clientX <= libRect.right && ev.clientY >= libRect.top && ev.clientY <= libRect.bottom;
+      if (!overLib && ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) {
+        const [px, py] = pos(ev);
+        place(cur.type, '', [Math.round(px / G), Math.round(py / G)], true);
+      }
+    }
+  });
+  window.addEventListener('pointercancel', clearLibDrag);
   loadSettings({ rebuild: buildLib });
   applySettings();
   initShell(A, { refreshSheet: sheet, rebuildLib: buildLib });
+
+  document.onclick = ev => {
+    const gm = ev.target.closest('[data-gm]');
+    if (gm && state.sim && state.genSel != null) {
+      state.genMode = state.genMode || {};
+      state.genMode[state.genSel] = gm.dataset.gm;
+      vib(); tick(); sheet(); return;
+    }
+    const t = ev.target.closest('[data-a],[data-add],[data-o],[data-x],[data-ex]');
+    if (!t) return;
+    const d = t.dataset;
+    if (d.add) place(d.add);
+    else if (d.ex) { A.mclose(); loadExample(d.ex); }
+    else if (d.o) { const s = LS.get('rly:' + d.o); if (s) { try { load(JSON.parse(s)); state.proj = d.o; A.mclose(); } catch (_) {} } }
+    else if (d.x) { LS.del('rly:' + d.x); A.ws(); }
+    else if (A[d.a]) A[d.a]();
+  };
 
   state.els = [];
   state.wires = [];
