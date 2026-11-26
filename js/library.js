@@ -30,7 +30,6 @@ export const LIBRARY_ITEMS = {
   ic_sourceL1L2L3N: { k: 'S', km: 'ប្រភព ៣ ហ្វា+ណឺត', en: 'Power 3Phase + N' },
   ic_battery:       { k: 'S', km: 'ថ្មពិល/អាគុយ DC', en: 'DC Battery' },
   ic_generator3ph:  { k: 'S', km: 'ម៉ាស៊ីនភ្លើង ៣ ហ្វា', en: 'Generator 3 Phase' },
-  ic_junctionPE:    { k: 'S', km: 'ជើងបំបែកខ្សែដី PE', en: 'Ground Terminal PE' },
   ic_sourceGnd:     { k: 'S', km: 'ជើងខ្សែដី PE', en: 'Grounding PE' },
   ic_powerSupply:   { k: 'S', km: 'ប្រភពបំប្លែងភ្លើង AC/DC', en: 'Power Supply AC/DC' },
   ic_powerSupply2:  { k: 'S', km: 'ប្រភពបំប្លែងភ្លើង AC/DC', en: 'Power Supply AC/DC' },
@@ -57,7 +56,7 @@ export const LIBRARY_ITEMS = {
   ic_isolator4p:    { k: 'P', km: 'កុងតាក់ផ្តាច់ចរន្ត 4P', en: 'Isolator 4P' },
   ol3:              { k: 'P', km: 'រ៉េឡេកម្ដៅ 3P', en: 'Thermal Overload 3P' },
  ic_phaseFailure:  { k: 'P', km: 'រ៉េឡេការពារបាត់ហ្វា', en: 'Phase Failure Relay' },
- breaker:          { k: 'P', km: 'ប្រេកគ័រកម្ដៅ 3P (Thermal Breaker)' },
+
 
   // --- ប៊ូតុង និងកុងតាក់ (Buttons & Switches - W) ---
   btnNO:            { k: 'W', km: 'ប៊ូតុងចុច NO', en: 'Push Button NO' },
@@ -120,14 +119,15 @@ export const LIBRARY_ITEMS = {
   ic_motorDC:       { k: 'M', km: 'ម៉ូទ័រចរន្តជាប់ DC', en: 'DC Motor' },
 
   // --- អក្សរ និងតំណខ្សែ (Text & Junctions - X) ---
-  txt:              { k: 'X', km: 'អក្សរចំណាំ', en: 'Text Label' },
   ic_diode:         { k: 'X', km: 'ឌីយ៉ូត', en: 'Diode' },
   ic_junction2p:    { k: 'X', km: 'តំណខ្សែត្រង់', en: 'Straight Junction 2P' },
   ic_junction2p90:  { k: 'X', km: 'តំណខ្សែកែង 90°', en: 'Corner Junction 90°' },
   ic_junction3p:    { k: 'X', km: 'តំណខ្សែប្រសព្វ ៣ ផ្លូវ', en: 'T-Junction 3P' },
   ic_junction4p:    { k: 'X', km: 'តំណខ្សែប្រសព្វ ៤ ផ្លូវ', en: 'Cross Junction 4P' },
+  ic_junctionPE:    { k: 'X', km: 'ជើងបំបែកខ្សែដី PE', en: 'Ground Terminal PE' },
   ic_arrowSource:   { k: 'X', km: 'ព្រួញបញ្ជូនចរន្តចេញ', en: 'Source Arrow' },
-  ic_arrowDestination: { k: 'X', km: 'ព្រួញទទួលចរន្តចូល', en: 'Destination Arrow' }
+  ic_arrowDestination: { k: 'X', km: 'ព្រួញទទួលចរន្តចូល', en: 'Destination Arrow' },
+  txt:              { k: 'X', km: 'អក្សរកត់ចំណាំ', en: 'Text Label' }
 };
 
 // អនុវត្តឈ្មោះ និងក្រុមតាមភាសាបច្ចុប្បន្ន ('km' ឬ 'en')
