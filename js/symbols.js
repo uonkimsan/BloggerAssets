@@ -359,8 +359,8 @@ export function applyIcons(D, G, COL) {
         } else if (name === 'generator3ph') {
           f = s.on ? 1 : 0;
         } else if (ic.ef && condFn) {
-          const active = isActuated(e);
-          f = ic.ef[active ? 1 : 0] || 0;
+          const isClosed = condFn(e, 0);
+          f = ic.ef[isClosed ? 1 : 0] || 0;
         } else if (isCoilOrLoad) {
           f = s.on ? ((isMotor && (s.dir || 1) < 0 && ic.fr[2]) ? 2 : 1) : 0;
         }
@@ -415,6 +415,8 @@ function motorSpin360(cx, cy, r, angleDeg, dir = 1) {
 
 function cleanTextPaths(svgStr, isMotor = false) {
   let out = String(svgStr || '');
+  out = out.replace(/stroke-width:\s*6\b/gi, 'stroke-width:3.99;stroke-linecap:butt');// ៣. កំណត់ Stroke Icons SVG
+  out = out.replace(/stroke-width:\s*3\b/gi, 'stroke-width:3;stroke-linecap:butt');
   out = out.replace(/style="([^"]*fill:var\(--ink\)[^"]*)"/gi, (m, st) =>
     /stroke\s*:/i.test(st) ? m : `style="${st};stroke:none"`
   );
