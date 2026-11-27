@@ -58,7 +58,7 @@ export function draw() {
     // គ្រាប់ស្វ៊ែអេឡិចត្រុងសេរីមូលរត់តាមខ្សែភ្លើង (Free Electron Spheres)
     if (fd) {
       const off = (fd > 0 ? -electronPhase : electronPhase).toFixed(2);
-      h += `<path d="${d}" filter="url(#eglow)" style="fill:none;stroke:#fef08a;stroke-width:4.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
+      h += `<path d="${d}" filter="uopacity: 0.38" style="fill:none;stroke:#fef08a;stroke-width:4.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
       h += `<path d="${d}" style="fill:none;stroke:#ffffff;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
     }
   });
