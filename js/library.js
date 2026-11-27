@@ -92,7 +92,7 @@ export const LIBRARY_ITEMS = {
   ic_contactNCDelayOff: { k: 'A', km: 'កុងតាក់ Timer TOF NC', en: 'Timer TOF Contact NC' },
    olNC:             { k: 'A', km: 'ជំនួយកម្ដៅ NC (95-96)', en: 'Overload NC (95-96)' },
   olNO:             { k: 'A', km: 'ជំនួយកម្ដៅ NO (97-98)', en: 'Overload NO (97-98)' },
-  
+
 
   // --- កុងតាក់ទ័រកម្លាំង (Power Contactors - T) ---
   ic_contactor1p:   { k: 'T', km: 'កុងតាក់ទ័រ NO 1P', en: 'Contactor NO 1P' },
