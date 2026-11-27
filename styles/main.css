@@ -1,6 +1,6 @@
 /* ==========================================================================
 ឯកសារ៖ styles/main.css
-តួនាទី៖ រចនារូបរាងប៊ូតុង ម៉ឺនុយ App Shell ផ្ទៃគូរប្លង់ និងនិមិត្តសញ្ញាអគ្គិសនី SVG
+តួនាទី៖ រចនារូបរាងប៊ូតុង ម៉ឺនុយ App Shell ផ្ទាំង Properties ខាងស្តាំ ផ្ទៃគូរប្លង់ និង SVG
 ========================================================================== */
 
 { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -149,11 +149,10 @@ font-size: 12px;
 z-index: 20;
 }
 #statusbar b { color: var(--on); font-weight: 600; }
-#sheet { bottom: 26px; }
 }
 
 /* ==========================================================================
-ផ្ទាំងគូរប្លង់ Canvas - ប្រើសញ្ញាព្រួញ (default) និងការពារកុំឱ្យ Select លើអក្សរ Tag ពេលអូស
+ផ្ទាំងគូរប្លង់ Canvas
 ========================================================================== */
 #wrap { position: relative; flex: 1; overflow: hidden; user-select: none; -webkit-user-select: none; }
 #cv {
@@ -171,27 +170,26 @@ user-select: none;
 pointer-events: none;
 }
 
-/* ប៊ូតុងពង្រីក/ពង្រួម (−, ⊡, +) ជាទម្រង់ផ្តេកនៅជ្រុងខាងក្រោមស្តាំ */
+/* ប៊ូតុងពង្រីក/ពង្រួម (−, ⊡, +) នៅជ្រុងខាងក្រោមស្តាំ */
 #zm {
 position: absolute; bottom: 10px; right: 10px; display: flex; flex-direction: row;
 background: var(--panel); border: 1px solid var(--grid); border-radius: 8px;
-box-shadow: 0 2px 8px #0002; overflow: hidden;
+box-shadow: 0 2px 8px #0002; overflow: hidden; z-index: 20;
 }
 #zm button {
 width: 38px; height: 38px; border: 0; border-right: 1px solid var(--grid);
 background: none; font-size: 20px; font-weight: 700; cursor: pointer;
 display: flex; align-items: center; justify-content: center;
 }
-#zm button:last-child { border-bottom: 0; }
+#zm button:last-child { border-right: 0; }
 #zm button:active { background: var(--bg); }
-#bd { position: fixed; inset: 0; background: #0006; z-index: 15; backdrop-filter: blur(1px); }
 
 /* របារស្ថានភាព និងសម្គាល់ពណ៌ហ្វាស */
 #st {
 position: absolute; left: 10px; bottom: 10px; background: var(--panel);
 border: 1px solid var(--grid); padding: 4px 12px; border-radius: 20px;
 font-size: 12px; font-weight: 600; box-shadow: 0 2px 6px #0002;
-display: flex; align-items: center; gap: 6px; pointer-events: none;
+display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 20;
 }
 #st.err { background: var(--danger); color: #fff; border-color: var(--danger); }
 #st.sim { border-color: var(--on); color: var(--on); }
@@ -199,26 +197,12 @@ display: flex; align-items: center; gap: 6px; pointer-events: none;
 #legend {
 position: absolute; top: 10px; left: 10px; background: var(--panel);
 border: 1px solid var(--grid); padding: 4px 8px; border-radius: 6px;
-font-size: 10px; display: flex; gap: 8px; opacity: .85; pointer-events: none;
+font-size: 10px; display: flex; gap: 8px; opacity: .85; pointer-events: none; z-index: 20;
 }
 .leg { display: flex; align-items: center; gap: 3px; font-weight: 600; }
 .leg i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-/* ==========================================================================
-ផ្ទាំងកែប្រែឧបករណ៍ខាងក្រោម (Bottom Sheet)
-========================================================================== */
-#sheet {
-position: fixed; left: 0; right: 0; bottom: 0; z-index: 12;
-display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
-background: var(--panel); border-top: 2px solid var(--accent);
-box-shadow: 0 -4px 12px #0002;
-}
-@media (min-width: 900px) {
-#sheet { bottom: 26px; }
-}
-#sheet label { display: flex; gap: 5px; align-items: center; font-size: 12px; font-weight: 600; }
-#sheet input[type="color"] { width: 32px; height: 28px; padding: 1px; border: 1px solid var(--grid); border-radius: 6px; cursor: pointer; background: transparent; }
+/* ធាតុទម្រង់ Input, Select និងប៊ូតុងទូទៅ */
 input, select, textarea { background: var(--bg); border: 1px solid var(--grid); border-radius: 6px; padding: 5px 8px; }
 .b {
 border: 1px solid var(--grid); background: var(--bg); border-radius: 6px;
@@ -226,29 +210,223 @@ padding: 6px 11px; cursor: pointer; font-weight: 600; font-size: 12px;
 display: inline-flex; align-items: center; gap: 4px;
 }
 .b:active { transform: scale(.97); }
+.b:disabled { opacity: .4; pointer-events: none; }
 .b.pri { background: var(--accent); color: #fff; border-color: var(--accent); }
 .b.del { color: var(--danger); border-color: var(--danger); }
 
 /* ==========================================================================
-ផ្ទាំងម៉ឺនុយ និងបណ្ណាល័យឧបករណ៍ (Sidebars)
+របារប៊ូតុង និងផ្ទាំង Properties ជ្រុងលើខាងស្តាំ (Right Dock Drawer)
 ========================================================================== */
-aside {
-  position: fixed; top: 0; bottom: 0; left: 0; width: min(340px, 90vw);
-  z-index: 35; background: var(--panel); box-shadow: 4px 0 20px #0005;
-  display: flex; flex-direction: column;
+#prop-dock {
+position: absolute;
+top: 10px;
+right: 10px;
+z-index: 25;
+display: flex;
+flex-direction: column;
+gap: 6px;
+background: var(--panel);
+border: 1px solid var(--grid);
+border-radius: 10px;
+padding: 4px;
+box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+#prop-toggle {
+width: 36px;
+height: 36px;
+border: 1px solid transparent;
+border-radius: 8px;
+background: transparent;
+color: var(--ink);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+position: relative;
+}
+#prop-toggle:hover,
+#prop-toggle.act {
+background: color-mix(in srgb, var(--accent) 20%, transparent);
+border-color: var(--accent);
+color: var(--accent);
+}
+#prop-toggle.has-sel::after {
+content: '';
+position: absolute;
+top: 5px;
+right: 5px;
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: var(--accent);
+}
+
+#sheet {
+position: absolute;
+top: 10px;
+right: 56px;
+bottom: 54px;
+left: auto;
+width: min(310px, calc(100vw - 72px));
+z-index: 24;
+background: var(--panel);
+border: 1px solid var(--grid);
+border-radius: 12px;
+box-shadow: -8px 10px 28px rgba(0, 0, 0, 0.35);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+padding: 0;
+}
+#sheet[hidden] {
+display: none !important;
+}
+
+.prop-hdr {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px 12px;
+border-bottom: 1px solid var(--grid);
+background: color-mix(in srgb, var(--bg) 60%, var(--panel));
+}
+.prop-title {
+display: flex;
+align-items: center;
+gap: 8px;
+font-weight: 700;
+font-size: 13px;
+color: var(--ink);
+}
+.prop-title .ic {
+width: 16px;
+height: 16px;
+color: var(--accent);
+}
+.prop-ctrl {
+display: flex;
+align-items: center;
+gap: 4px;
+}
+.prop-ctrl button {
+background: transparent;
+border: 1px solid transparent;
+color: var(--muted);
+border-radius: 6px;
+padding: 3px 7px;
+font-size: 13px;
+cursor: pointer;
+}
+.prop-ctrl button:hover,
+.prop-ctrl button.act {
+color: var(--accent);
+border-color: var(--accent);
+background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+#sh-body {
+flex: 1;
+overflow-y: auto;
+padding: 12px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.prop-card {
+background: var(--bg);
+border: 1px solid var(--grid);
+border-radius: 8px;
+padding: 10px;
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.prop-sec-lbl {
+font-size: 11px;
+font-weight: 700;
+color: var(--muted);
+text-transform: uppercase;
+letter-spacing: 0.4px;
+}
+.prop-grid2 {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 8px;
+}
+.prop-field {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+.prop-field span {
+font-size: 11px;
+color: var(--muted);
+}
+.prop-field input,
+.prop-field select {
+width: 100%;
+padding: 6px 8px;
+border-radius: 6px;
+border: 1px solid var(--grid);
+background: var(--panel);
+color: var(--ink);
+font-size: 13px;
+}
+.prop-actions {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 6px;
+}
+.prop-actions .b {
+justify-content: center;
+padding: 7px 8px;
+font-size: 12px;
+}
+
+/* ប៊ូតុងបញ្ជាម៉ាស៊ីនភ្លើង AUTO / ON / OFF អណ្ដែតក្នុង Canvas */
+#sheet.gen-float {
+right: auto;
+bottom: auto;
+width: auto;
+padding: 0;
+background: transparent;
+border: 0;
+box-shadow: none;
+border-radius: 0;
+pointer-events: auto;
+}
+#sheet.gen-float .prop-hdr { display: none; }
+#sheet.gen-float #sh-body { padding: 0; overflow: visible; }
+.gen-bar { display: inline-flex; gap: 4px; align-items: center; }
+.gb {
+min-width: 52px; height: 30px; padding: 0 10px;
+border: 1px solid var(--grid); border-radius: 6px;
+background: var(--panel); color: var(--ink);
+font-weight: 700; font-size: 11px; cursor: pointer;
+box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+}
+.gb.act { background: var(--on); border-color: var(--on); color: #fff; }
+
+/* ==========================================================================
+ផ្ទាំងម៉ឺនុយ និងបណ្ណាល័យឧបករណ៍ (Left Sidebars)
+========================================================================== */
+#menu, #lib {
+position: fixed; top: 0; bottom: 0; left: 0; width: min(340px, 90vw);
+z-index: 35; background: var(--panel); box-shadow: 4px 0 20px #0005;
+display: flex; flex-direction: column;
 }
 #lib {
-  top: 48px;
-  z-index: 18;
-  border-right: 1px solid var(--grid);
+top: 48px;
+z-index: 18;
+border-right: 1px solid var(--grid);
 }
 @media (min-width: 900px) {
-  #lib {
-    top: 76px;
-    bottom: 26px;
-  }
+#lib {
+top: 76px;
+bottom: 26px;
+}
 }
 #bd { position: fixed; inset: 0; background: #0006; z-index: 15; backdrop-filter: blur(1px); }
+
 .mh {
 background: linear-gradient(135deg, #059669, #0284c7); color: #fff;
 padding: calc(env(safe-area-inset-top, 0px) + 20px) 16px 16px;
@@ -261,7 +439,7 @@ display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
 border: 0; background: none; padding: 13px 18px; font-size: 14px;
 font-weight: 600; cursor: pointer; border-bottom: 1px solid var(--bg);
 }
-#menu button:hover { background: var(--bg); }
+#menu button:hover,
 #menu button:active { background: var(--bg); }
 
 #libh { padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 10px; border-bottom: 1px solid var(--grid); background: var(--bg); }
@@ -281,11 +459,41 @@ align-items: center; justify-content: space-between; transition: transform .1s;
 .tile svg { width: 100%; height: 54px; }
 .tile small { font-size: 10px; line-height: 1.2; text-align: center; font-weight: 600; margin-top: 4px; }
 
+#grid:not(.list) .tile {
+justify-content: center;
+min-height: 68px;
+padding: 8px;
+}
+#grid:not(.list) .tile svg {
+width: 72px;
+height: 72px;
+}
+#grid.list { grid-template-columns: 1fr; }
+#grid.list .tile { flex-direction: row; gap: 10px; align-items: center; }
+#grid.list .tile svg { width: 64px; flex: none; }
+#grid.list .tile small { font-size: 12px; text-align: left; }
+
+#lib-tip {
+position: fixed;
+z-index: 9999;
+transform: translate(-50%, -100%);
+padding: 5px 10px;
+border-radius: 6px;
+background: var(--ink);
+color: var(--panel);
+font-size: 12px;
+font-weight: 700;
+white-space: nowrap;
+pointer-events: none;
+box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+}
+#lib-tip[hidden] { display: none; }
+
 /* ==========================================================================
 ផ្ទាំង Modal
 ========================================================================== */
 #md { position: fixed; inset: 0; z-index: 30; background: #0007; display: flex; align-items: center; justify-content: center; padding: 16px; }
-#md[hidden], aside[hidden], #bd[hidden], #sheet[hidden] { display: none; }
+#md[hidden], #menu[hidden], #lib[hidden], #bd[hidden] { display: none !important; }
 .card {
 background: var(--panel); border-radius: 12px; padding: 16px;
 max-width: 440px; width: 100%; max-height: 85vh; overflow: auto;
@@ -294,19 +502,20 @@ box-shadow: 0 10px 25px #0004;
 .card h3 { margin: 0 0 12px; font-size: 16px; border-bottom: 1px solid var(--grid); padding-bottom: 8px; }
 .card textarea { width: 100%; height: 110px; font-family: monospace; font-size: 12px; }
 .row { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+.card input[type=color] { width: 44px; height: 30px; padding: 0; border: 1px solid var(--grid); border-radius: 6px; background: none; }
 
 /* ==========================================================================
-រចនាបថនិមិត្តសញ្ញាអគ្គិសនី SVG (រចនាបថទំនើបដូច Simurelay)
+រចនាបថនិមិត្តសញ្ញាអគ្គិសនី SVG
 ========================================================================== */
 svg path, svg rect, svg circle, svg line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 svg path[style="stroke:none"], svg path[style="stroke: none"] { stroke: none !important; stroke-width: 0 !important; }
 svg .w { stroke-width: 2.6; cursor: pointer; }
 svg .dot { stroke: none; }
 
-/* ជើង Terminals (ចំណុច Dot ថ្លា គ្មានផ្ទៃពណ៌ខាងក្នុងបាំងបន្ទាត់) */
+/* ជើង Terminals */
 svg .tm { stroke: var(--accent) !important; stroke-width: 1.6 !important; fill: var(--tmdot) !important; cursor: pointer; }
 
-/* លេខជើង Terminals (1, 2, 3, 4...) គ្មានផ្ទៃពណ៌ដិតនៅខាងក្រោយ */
+/* លេខជើង Terminals (1, 2, 3, 4...) */
 svg .tm-pin {
 fill: var(--pin, var(--muted));
 stroke: none !important;
@@ -331,60 +540,4 @@ svg .tag-tm { fill: var(--lamp); font: 700 8.5px 'JetBrains Mono', 'Consolas', m
 body.hide-tags #cv text.tag-txt,
 body.hide-tags #cv text.tm-pin {
 display: none !important;
-}
-
-/* បណ្ណាល័យជាបញ្ជី (បិទ «បង្ហាញជាក្រឡា») */
-#grid.list { grid-template-columns: 1fr; }
-#grid.list .tile { flex-direction: row; gap: 10px; align-items: center; }
-#grid.list .tile svg { width: 64px; flex: none; }
-#grid.list .tile small { font-size: 12px; text-align: left; }
-#settings input[type=color], .card input[type=color] { width: 44px; height: 30px; padding: 0; border: 1px solid var(--grid); border-radius: 6px; background: none; }
-
-/* Gernator CSS */
-.b.pri { background: var(--accent); color: #fff; border-color: var(--accent); }
-.b.del { color: var(--danger); border-color: var(--danger); }
-
-/* ប៊ូតុងបញ្ជាម៉ាស៊ីនភ្លើង AUTO / ON / OFF អណ្ដែតក្នុង Canvas គ្មានផ្ទៃ Background របារ */
-#sheet.gen-float {
-right: auto;
-bottom: auto;
-padding: 0;
-background: transparent;
-border: 0;
-box-shadow: none;
-pointer-events: auto;
-}
-.gen-bar { display: inline-flex; gap: 4px; align-items: center; }
-.gb {
-min-width: 52px; height: 30px; padding: 0 10px;
-border: 1px solid var(--grid); border-radius: 6px;
-background: var(--panel); color: var(--ink);
-font-weight: 700; font-size: 11px; cursor: pointer;
-box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
-}
-.gb.act { background: var(--on); border-color: var(--on); color: #fff; }
-/ ផ្ទាំងបង្ហាញឈ្មោះឧបករណ៍ពេលយកម៉ៅដាក់ពីលើ ឬចុចលើទូរស័ព្ទ */
-#lib-tip {
-position: fixed;
-z-index: 9999;
-transform: translate(-50%, -100%);
-padding: 6px 12px;
-border-radius: 8px;
-background: var(--ink);
-color: var(--panel);
-font-size: 13px;
-font-weight: 700;
-white-space: nowrap;
-pointer-events: none;
-box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-}
-#lib-tip[hidden] { display: none; }
-@media (max-width: 767px) {
-#lib {
-width: min(215px, 60vw);
-}
-#grid {
-grid-template-columns: repeat(2, minmax(0, 1fr));
-gap: 8px;
-}
 }
