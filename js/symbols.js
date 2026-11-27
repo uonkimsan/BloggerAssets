@@ -14,7 +14,7 @@ export const ICON_OF = {
   ct3: 'contactor3p', lamp: 'lamp', lampRun: 'lamp', lampStop: 'lamp', lampTrip: 'lamp', buzz: 'buzzer', mot1: 'motor1ph', mot3: 'motor3ph'
 };
 const ADOPT = new Set(['mbrk3', 'mot1']);
-const SKIP_ICONS = new Set(['motor']);
+const SKIP_ICONS = new Set(['motor', 'breaker']);
 const SIM = { lamp: 'var(--lamp)', lampRun: '#10b981', lampStop: '#ef4444', lampTrip: '#f59e0b', buzz: 'var(--lamp)' };
 const ROT = { 0: (x, y) => [x, y], 90: (x, y) => [-y, x], 180: (x, y) => [-x, -y], 270: (x, y) => [y, -x] };
 
@@ -168,6 +168,7 @@ function resolveCategory(name, ic) {
 
 function guessPrefix(name, k) {
   const n = name.toLowerCase();
+  if (n.startsWith('arrow')) return 'X';
   if (n.startsWith('generator')) return 'GS';
   if (n === 'battery' || n.startsWith('powersupply')) return 'V';
   if (k === 'S' || k === 'X') return undefined;
@@ -230,14 +231,17 @@ export function applyIcons(D, G, COL) {
     d.icon = name;
     d.bb = bbFor(type, d.t, G, ic);
     d.d = (e, s) => {
+      const isMot = type === 'mot3' || type === 'mot1';
       let f = 0;
       if (ic.ef && d.c) f = ic.ef[s.cl ? 1 : 0];
-      else if (d.ld) f = s.on ? ((type == 'mot3' && (s.dir || 1) < 0 && ic.fr[2]) ? 2 : 1) : 0;
-      const body = cleanTextPaths(ic.fr[f] || ic.fr[0], type === 'mot3' || type === 'mot1');
+      else if (d.ld && !isMot) f = s.on ? 1 : 0;
+      let body = cleanTextPaths(ic.fr[f] || ic.fr[0], isMot);
+      if (isMot && s.on) {
+        body = body.replace(/fill\s*:\s*none/gi, 'fill:var(--simfill)');
+      }
       let spinOverlay = '';
-      if (s.on && (type === 'mot3' || type === 'mot1')) {
+      if (s.on && isMot) {
         const xs = d.t.map(p => p[0] * G);
-        const ys = d.t.map(p => p[1] * G);
         const mcX = (Math.min(...xs) + Math.max(...xs)) / 2;
         const mcY = 30;
         const spinR = type === 'mot3' ? 25 : 22;
@@ -276,16 +280,21 @@ export function applyIcons(D, G, COL) {
     const isTimer = name.includes('Delay') || name.includes('Flasher');
     const isAuxOrContactor = k === 'A' || k === 'T';
     const isMomentaryBtn = name.startsWith('button');
-    const isToggleSw = (k === 'W' && !isMomentaryBtn) || (k === 'P' && !name.startsWith('overload') && !name.startsWith('phaseFailure'));
+    const isPhaseFail = name === 'phaseFailure';
+    const isArrow = name === 'arrowSource' || name === 'arrowDestination';
+    const isToggleSw = (k === 'W' && !isMomentaryBtn) || (k === 'P' && !name.startsWith('overload') && !isPhaseFail);
     const isSource = k === 'S';
     const is3Pos = name === 'switch3p' || name === 'switch3p0';
 
     const rawContacts = Array.isArray(ic.cp) ? ic.cp : [];
-    const pPairs = rawContacts.length
-      ? rawContacts.map(c => [c[0], c[1]])
-      : (t.length === 2 && !isCoilOrLoad && !isSource ? [[0, 1]] : []);
+    const pPairs = isPhaseFail
+      ? [[3, 4], [3, 5]]
+      : rawContacts.length
+        ? rawContacts.map(c => [c[0], c[1]])
+        : (t.length === 2 && !isCoilOrLoad && !isSource && !isArrow ? [[0, 1]] : []);
 
     const isActuated = e => {
+      if (isPhaseFail) return !!state.out[e.tag];
       if (name.startsWith('overload')) return state.tripped.has(e.tag);
       if (isAuxOrContactor) return !!state.out[e.tag];
       if (isMomentaryBtn) return state.pressed.has(e.id);
@@ -296,6 +305,11 @@ export function applyIcons(D, G, COL) {
     let condFn = null;
     if (name === 'diode') {
       condFn = () => true;
+    } else if (isPhaseFail) {
+      condFn = (e, pairIdx = 0) => {
+        const ok = !!state.out[e.tag];
+        return pairIdx === 0 ? !ok : ok; // ជើង 11-12 (NC) បិទពេលបាត់ហ្វាស, ជើង 11-14 (NO) បិទពេលគ្រប់ 3 ហ្វាស
+      };
     } else if (is3Pos) {
       condFn = (e, pairIdx = 0) => {
         const pos = state.multiPos?.[e.id] || 0;
@@ -337,6 +351,12 @@ export function applyIcons(D, G, COL) {
       else if (name === 'powerSupply') multiSrc = [null, 'P', null, 'P', null, 'M', 'PE', 'M'];
     }
 
+    let tmMode = 0;
+    if (name === 'coilDelayOn') tmMode = 1;
+    else if (name === 'coilDelayOff') tmMode = 2;
+    else if (name === 'coilDelayOnOff') tmMode = 3;
+    else if (name === 'coilFlasher') tmMode = 4;
+
     const simFill = (k === 'L') ? 'var(--lamp)' : 'color-mix(in srgb, var(--on) 30%, transparent)';
 
     D[key] = {
@@ -347,10 +367,11 @@ export function applyIcons(D, G, COL) {
       pre,
       pins: ic.tags || [],
       bb,
+      ...(isArrow ? { link: true } : {}),
       ...(srcN ? { n: srcN } : {}),
       ...(multiSrc ? { multiSrc } : {}),
       ...(isCoilOrLoad ? { ld: isMotor && t.length >= 3 ? 3 : 1 } : {}),
-      ...(isTimer ? { tm: name.includes('Off') ? 2 : 1 } : {}),
+      ...(tmMode ? { tm: tmMode } : {}),
       ...(condFn ? { c: condFn } : {}),
       d: (e, s) => {
         let f = 0;
@@ -358,13 +379,22 @@ export function applyIcons(D, G, COL) {
           f = (state.multiPos?.[e.id] || 0) % (ic.fr.length || 1);
         } else if (name === 'generator3ph') {
           f = s.on ? 1 : 0;
+        } else if (isPhaseFail) {
+          f = state.out[e.tag] ? 1 : 0;
         } else if (ic.ef && condFn) {
           const isClosed = condFn(e, 0);
           f = ic.ef[isClosed ? 1 : 0] || 0;
-        } else if (isCoilOrLoad) {
-          f = s.on ? ((isMotor && (s.dir || 1) < 0 && ic.fr[2]) ? 2 : 1) : 0;
+        } else if (isCoilOrLoad && !isMotor) {
+          if (name === 'coilLatch' || name === 'coilFlasher') {
+            f = state.out[e.tag] ? 1 : 0;
+          } else {
+            f = s.on ? 1 : 0;
+          }
         }
-        const body = cleanTextPaths(ic.fr[f] || ic.fr[0] || '', isMotor);
+        let body = cleanTextPaths(ic.fr[f] || ic.fr[0] || '', isMotor);
+        if (isMotor && s.on) {
+          body = body.replace(/fill\s*:\s*none/gi, 'fill:var(--simfill)');
+        }
         let genFill = '';
         if (name === 'generator3ph' && s.on) {
           genFill = `<circle cx="90" cy="89.82" r="67" style="fill:#fbbf24;stroke:none"/>`;
@@ -374,7 +404,8 @@ export function applyIcons(D, G, COL) {
           const mcX = ox;
           const mcY = oy;
           const spinR = Math.min(ic.w, ic.h) * S * 0.42;
-          spinOverlay = motorSpin360(mcX, mcY, spinR, s.a || 0, s.dir || 1);
+          const speedMult = (s.spd || 1) > 1 ? 2.2 : 1;
+          spinOverlay = motorSpin360(mcX, mcY, spinR, (s.a || 0) * speedMult, s.dir || 1);
         }
         return `<g transform="${tf}" style="--simfill:${simFill}">${genFill}${body}</g>${spinOverlay}`;
       }
@@ -415,7 +446,7 @@ function motorSpin360(cx, cy, r, angleDeg, dir = 1) {
 
 function cleanTextPaths(svgStr, isMotor = false) {
   let out = String(svgStr || '');
-  out = out.replace(/stroke-width:\s*6\b/gi, 'stroke-width:3.99;stroke-linecap:butt');// ៣. កំណត់ Stroke Icons SVG
+  out = out.replace(/stroke-width:\s*6\b/gi, 'stroke-width:3.99;stroke-linecap:butt');
   out = out.replace(/stroke-width:\s*3\b/gi, 'stroke-width:3;stroke-linecap:butt');
   out = out.replace(/style="([^"]*fill:var\(--ink\)[^"]*)"/gi, (m, st) =>
     /stroke\s*:/i.test(st) ? m : `style="${st};stroke:none"`
