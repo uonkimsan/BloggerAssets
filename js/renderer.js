@@ -138,7 +138,7 @@ export function draw() {
       }
     });
   });
-
+ 
   // គូរខ្សែដាច់ៗពេលកំពុងអូសតភ្ជាប់ខ្សែថ្មី ជាមួយសញ្ញា Snap ពណ៌បៃតងពេលចំជើងឧបករណ៍
   if (state.mode && state.mode.k == 'wire') {
     const [x1, y1] = state.mode.a, [x2, y2] = state.mode.c;
