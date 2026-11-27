@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <title>SimuMCC - Motor Control Center Simulator</title>
+  <title>ក្លែងធ្វើសៀគ្វីរ៉េឡេ - Simurelay</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
   <!-- ហៅកូដ CSS តាមលំដាប់ -->
-  <link rel="stylesheet" href="styles/fonts.css?v=1006">
-  <link rel="stylesheet" href="styles/variables.css?v=1006">
-  <link rel="stylesheet" href="styles/main.css?v=1006">
+  <link rel="stylesheet" href="styles/fonts.css?v=1007">
+  <link rel="stylesheet" href="styles/variables.css?v=1007">
+  <link rel="stylesheet" href="styles/main.css?v=1007">
 </head>
 <body>
   <nav id="menubar"></nav>
@@ -24,6 +24,29 @@
       <span class="leg"><i style="background:#0284c7"></i>N</span>
       <span class="leg"><i style="background:#16a34a"></i>PE</span>
     </div>
+
+    <!-- របារប៊ូតុងជ្រុងលើខាងស្តាំសម្រាប់បើក/បិទផ្ទាំង Properties -->
+    <div id="prop-dock" aria-label="Properties Dock">
+      <button type="button" id="prop-toggle" title="លក្ខណៈសម្បត្តិ (Properties)" aria-label="Properties">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 6v-2M4 12h16M17 12v-2M4 18h16M11 18v-2"/></svg>
+      </button>
+    </div>
+
+    <!-- ផ្ទាំង Properties ខាងស្តាំ (Right Drawer) -->
+    <aside id="sheet" hidden aria-label="ផ្ទាំងលក្ខណៈសម្បត្តិ">
+      <div class="prop-hdr">
+        <div class="prop-title">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/></svg>
+          <span>លក្ខណៈសម្បត្តិ (Properties)</span>
+        </div>
+        <div class="prop-ctrl">
+          <button type="button" id="prop-pin" title="ខ្ទាស់ឱ្យបើកជាប់ (Pin)">📌</button>
+          <button type="button" id="prop-close" title="បង្រួមផ្ទាំង (Collapse)">»</button>
+        </div>
+      </div>
+      <div id="sh-body"></div>
+    </aside>
+
     <div id="zm">
       <button type="button" data-a="zout" title="ពង្រួម (−)">−</button>
       <button type="button" data-a="fit" title="តម្រឹមកណ្តាល" style="font-size:14px">⊡</button>
@@ -34,7 +57,6 @@
 
   <footer id="statusbar"></footer>
 
-  <div id="sheet" hidden></div>
   <div id="bd" hidden data-a="close"></div>
 
   <aside id="lib" hidden>
@@ -67,6 +89,6 @@
   </div>
 
   <input type="file" id="mcc-input" accept=".mcc,application/json" hidden>
-  <script type="module" src="js/main.js?v=1006"></script>
+  <script type="module" src="js/main.js?v=1007"></script>
 </body>
 </html>
