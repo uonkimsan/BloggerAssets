@@ -1,6 +1,6 @@
 /* ==========================================================================
    ឯកសារ៖ js/renderer.js
-   តួនាទី៖ គូរក្រឡាចត្រង្គ ខ្សែភ្លើង ឧបករណ៍ SVG លេខជើង និងការតម្រឹមអេក្រង់
+   តួនាទី៖ គូរក្រឡាចត្រង្គ ខ្សែភ្លើង គ្រាប់ស្វ៊ែអេឡិចត្រុងរត់តាមខ្សែ ឧបករណ៍ SVG និងលេខជើង
    ========================================================================== */
 import { state, Q, esc } from './state.js';
 import { G, COL, D, rot, tp, cond, pinOf } from './components.js';
@@ -16,8 +16,11 @@ export function draw() {
   const H = (r.height || 600) / state.v.k;
   svg.setAttribute('viewBox', `${state.v.x} ${state.v.y} ${W} ${H}`);
 
-  // គូរចំណុចក្រឡាចត្រង្គ (Grid)
-  let h = `<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse">${state.opt.grid == 'dots' ? '<circle cx="0" cy="0" r="1.2" style="fill:var(--grid);stroke:none"/>' : '<path d="M20 0H0V20" style="fill:none;stroke:var(--grid);stroke-width:1"/>'}</pattern></defs>` +
+  // គូរចំណុចក្រឡាចត្រង្គ (Grid) និង Filter ពន្លឺសម្រាប់គ្រាប់ស្វ៊ែអេឡិចត្រុង
+  let h = `<defs>` +
+          `<pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse">${state.opt.grid == 'dots' ? '<circle cx="0" cy="0" r="1.2" style="fill:var(--grid);stroke:none"/>' : '<path d="M20 0H0V20" style="fill:none;stroke:var(--grid);stroke-width:1"/>'}</pattern>` +
+          `<filter id="eglow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` +
+          `</defs>` +
           (state.opt.grid && state.opt.grid != 'none' ? `<rect x="${state.v.x}" y="${state.v.y}" width="${W}" height="${H}" style="fill:url(#g);stroke:none"/>` : '');
 
   // បន្ទាត់ណែនាំតម្រឹមពេលអូសឧបករណ៍
@@ -41,17 +44,23 @@ export function draw() {
     return n.length ? (n.length > 1 ? '#ef4444' : COL[n[0]]) : 'var(--off)';
   };
 
-  // គូរខ្សែភ្លើងជា polyline ជាប់គ្នា (ជ្រុងមូល + ដៃលោតត្រង់ចំណុចកាត់គ្នាដែលមិនភ្ជាប់)
+  // គូរខ្សែភ្លើងជា polyline ជាប់គ្នា ជាមួយគ្រាប់ស្វ៊ែអេឡិចត្រុងសេរីមូលរត់លើខ្សែ
   const termKeys = new Set(state.els.flatMap(tp).map(p => p[0] + ',' + p[1]));
-  const flow = (state.sim && state.live && state.opt.flow !== false) ? computeFlow(state, D, tp) : null;   // ចរន្តរត់
-  const phase = ((state.flowT || 0) * 28) % 14;
+  const flow = (state.sim && state.live && state.opt.flow !== false) ? computeFlow(state, D, tp) : null;
+  const electronPhase = ((state.flowT || 0) * 32) % 18;
   const hops = makeHops(state.wires, termKeys);
   buildPolylines(state.wires, termKeys).forEach(pl => {
     const d = polyPath(pl.pts, hops), sel = state.selW >= 0 && pl.idx.includes(state.selW);
     const fd = sel ? 0 : polyDir(flow, pl);
-    const dash = fd ? `;stroke-linecap:butt;stroke-dasharray:8 6;stroke-dashoffset:${(fd > 0 ? -phase : phase).toFixed(2)}` : ''; // ជ្រើសខ្សែ = ជ្រើស polyline ទាំងមូល
+    const wCol = sel ? '#f59e0b' : col(pl.pts[0][0] + ',' + pl.pts[0][1]);
     if (sel) h += `<path d="${d}" style="fill:none;stroke:#f59e0b;stroke-width:7;opacity:.3;stroke-linecap:round;stroke-linejoin:round"/>`;
-    h += `<path class="w" d="${d}" style="fill:none;stroke:${sel ? '#f59e0b' : col(pl.pts[0][0] + ',' + pl.pts[0][1])};stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round${dash}"/>`;
+    h += `<path class="w" d="${d}" style="fill:none;stroke:${wCol};stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round"/>`;
+    // គ្រាប់ស្វ៊ែអេឡិចត្រុងសេរីមូលរត់តាមខ្សែភ្លើង (Free Electron Spheres)
+    if (fd) {
+      const off = (fd > 0 ? -electronPhase : electronPhase).toFixed(2);
+      h += `<path d="${d}" filter="url(#eglow)" style="fill:none;stroke:#fef08a;stroke-width:4.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
+      h += `<path d="${d}" style="fill:none;stroke:#ffffff;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
+    }
   });
   Object.keys(deg).forEach(k => { if (deg[k] > 2) { const [x, y] = k.split(','); h += `<circle class="dot" cx="${x * G}" cy="${y * G}" r="2.2" style="fill:${col(k)}"/>`; } });
 
@@ -62,6 +71,7 @@ export function draw() {
     const st = {
       on: !!(res && res.on && !state.live.short),
       dir: res ? res.dir : 1,
+      spd: res ? (res.spd || 1) : 1,
       cl: cond(e),
       pr: state.pressed.has(e.id),
       tr: state.tripped.has(e.tag),
@@ -92,11 +102,9 @@ export function draw() {
         timeStr = `${Math.max(0, e.sec - (state.acc[e.id] || 0)).toFixed(1)}s`;
       }
 
-      // ឧបករណ៍បញ្ឈរ (r=1,3 ឬកុងតាក់ទ័រ/ប្រេកគ័រ/ម៉ូទ័រ) ដាក់ Tag បញ្ឈរ (-90°) នៅចំហៀងខាងឆ្វេងដូច Simurelay
       const isVerticalPart = e.r % 2 === 1 || d.t.length >= 3 || e.type.startsWith('mot');
       const lockBadge = e.locked ? ' 🔒' : '';
       if (isVerticalPart) {
-        // បន្ថែមគម្លាតបន្ថែមសម្រាប់ប៊ូតុងចុច (Button/E-Stop/Roller) កុំឱ្យអក្សរជាន់លើក្បាលប៊ូតុងខាងឆ្វេង
         const hasActuatorLeft = /btn|button|estop|emergency|roller|sw/i.test(e.type);
         const tagGap = hasActuatorLeft ? 20 : 12;
         const txX = e.x * G + minX - tagGap;
