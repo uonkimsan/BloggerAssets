@@ -189,17 +189,17 @@ function guessPrefix(name, k) {
 export function applyIcons(D, G, COL) {
   const report = [];
 
-  // ១. កំណត់និមិត្តសញ្ញាប្រភពភ្លើង (L1, L2, L3, N, PE, +, −)
+  // ១. កំណត់និមិត្តសញ្ញាប្រភពភ្លើង (L1, L2, L3, N, PE, +, −) ឱ្យក្បាលនៅខាងលើ (y = -34) ដូច src3ph
   const SRC_LABELS = { srcL1: 'L1', srcL2: 'L2', srcL3: 'L3', srcN: 'N', srcPE: 'PE', srcP: '+', srcM: '−' };
   Object.entries(SRC_LABELS).forEach(([type, lb]) => {
     const d = D[type];
     if (!d) return;
-    d.bb = [-7, -4, 7, 42];
+    d.bb = [-7, -42, 7, 4];
     d.d = (e) => {
       const c = brightSrcCol(d.n, COL[d.n]);
-      return `<path d="M0 0V28" style="stroke:${c};stroke-width:1.8"/>` +
-             `<circle cx="0" cy="34" r="6" style="stroke:${c};stroke-width:1.6;fill:${c}28"/>` +
-             uprightText(e, lb, 0, 34, lb.length > 1 ? 7.5 : 9.5, c);
+      return `<path d="M0 0V-28" style="stroke:${c};stroke-width:1.8"/>` +
+             `<circle cx="0" cy="-34" r="6" style="stroke:${c};stroke-width:1.6;fill:${c}28"/>` +
+             uprightText(e, lb, 0, -34, lb.length > 1 ? 7.5 : 9.5, c);
     };
   });
 

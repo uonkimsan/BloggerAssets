@@ -59,7 +59,7 @@ const TB = [
   { a: 'grid', i: 'grid', k: 'grid', id: 'gridbtn' }, { a: 'snap', i: 'snap', k: 'snap', id: 'snapbtn' }, { a: 'hidetags', i: 'eye', k: 'hide', id: 'hidebtn' }, '|',
   { a: 'zout', i: 'zout', k: 'zout' }, { a: 'fit', i: 'fit', k: 'fit' }, { a: 'zin', i: 'zin', k: 'zin' }, '|',
   { a: 'theme', i: 'sun', k: 'theme', id: 'themebtn' }, { a: 'lang', k: 'lang', id: 'langbtn', txt: 1 },
-  { a: 'more', i: 'more', k: 'more', mo: 1 }
+  { a: 'more', i: 'more', k: 'more' }
 ];
 
 // ម៉ឺនុយធ្លាក់ចុះ (កុំព្យូទ័រ)

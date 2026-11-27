@@ -11,7 +11,12 @@ import { rerouteMoved, dragSegment, netSig, cleanWires, occupied, startMove, pla
 import { load as loadSettings, apply as applySettings, settingsUI, bindSettings, capture, save as saveSettings } from './settings.js';
 import { initShell, setRunUi, toggleLang, toggleTheme, keysHelp, refresh as refreshShell } from './shell.js';
 import { LIBRARY_CATEGORIES, LIBRARY_ITEMS, applyLibraryConfig } from './library.js';
+
 const vib = (ms = 12) => { if (state.opt.vibrate && navigator.vibrate) navigator.vibrate(ms); };
+
+// ស្ថានភាពបើក/បិទ និងខ្ទាស់ (Pin) ផ្ទាំង Properties ខាងស្តាំ
+let propOpen = false;
+let propPinned = false;
 
 const ser = () => JSON.stringify({
   app: 'Simurelay-MCC',
@@ -136,10 +141,17 @@ function reorder(front) {
 }
 const layerBtns = '<button class="b" data-a="front">ខាងមុខ</button><button class="b" data-a="back">ខាងក្រោយ</button>';
 
+// ផ្ទាំង Properties ខាងស្តាំ (បើកលុះត្រាតែចុចប៊ូតុង Properties នៅជ្រុងលើខាងស្តាំ ឬខ្ទាស់ Pin)
 function sheet() {
-  const e = state.els.find(a => a.id == state.sel), sh = Q('#sheet');
+  const sh = Q('#sh') || Q('#sheet');
+  const body = Q('#sh-body') || sh;
+  const propToggleBtn = Q('#prop-toggle');
   refreshShell();
+  if (!sh) return;
+
+  // ពេលកំពុង Simulation៖ បង្ហាញតែផ្ទាំងបញ្ជា Generator (AUTO / ON / OFF) បើចុចលើ Generator
   if (state.sim) {
+    if (propToggleBtn) propToggleBtn.classList.remove('has-sel');
     const gen = state.els.find(a => a.id == state.genSel && a.type === 'ic_generator3ph');
     sh.hidden = !gen;
     sh.classList.toggle('gen-float', !!gen);
@@ -151,7 +163,10 @@ function sheet() {
       const gy = r.top + (gen.y * G + 42 - state.v.y) * state.v.k;
       sh.style.left = Math.min(window.innerWidth - 195, Math.max(10, gx)) + 'px';
       sh.style.top = Math.min(window.innerHeight - 75, Math.max(45, gy)) + 'px';
-      sh.innerHTML = `<div class="gen-bar">` +
+      sh.style.right = 'auto';
+      sh.style.bottom = 'auto';
+      sh.style.width = 'auto';
+      body.innerHTML = `<div class="gen-bar">` +
         `<button type="button" class="gb ${m === 'AUTO' ? 'act' : ''}" data-gm="AUTO">AUTO</button>` +
         `<button type="button" class="gb ${m === 'ON' ? 'act' : ''}" data-gm="ON">ON</button>` +
         `<button type="button" class="gb ${m === 'OFF' ? 'act' : ''}" data-gm="OFF">OFF</button>` +
@@ -159,17 +174,62 @@ function sheet() {
     } else {
       sh.style.left = '';
       sh.style.top = '';
+      sh.style.right = '';
+      sh.style.bottom = '';
+      sh.style.width = '';
     }
     return;
   }
+
   sh.classList.remove('gen-float');
   sh.style.left = '';
   sh.style.top = '';
-  sh.hidden = !(e || state.selW >= 0);
-  if (sh.hidden) return;
-  if (!e) { sh.innerHTML = '<b>ខ្សែភ្លើង</b>' + layerBtns + '<button class="b del" data-a="delw">លុប</button>'; return; }
+  sh.style.right = '';
+  sh.style.bottom = '';
+  sh.style.width = '';
+
+  const e = state.els.find(a => a.id == state.sel);
+  const hasSelection = !!(e || state.selW >= 0);
+  if (propToggleBtn) {
+    propToggleBtn.classList.toggle('has-sel', hasSelection);
+    propToggleBtn.classList.toggle('act', propOpen);
+  }
+
+  // បិទផ្ទាំង Properties ប្រសិនបើអ្នកប្រើមិនទាន់ចុចប៊ូតុង Properties (លើកលែងតែបានខ្ទាស់ Pin)
+  if (!propOpen && !propPinned) {
+    sh.hidden = true;
+    return;
+  }
+  sh.hidden = false;
+
+  // ករណីមិនទាន់បានជ្រើសរើសឧបករណ៍ ឬខ្សែភ្លើង
+  if (!e && state.selW < 0) {
+    body.innerHTML =
+      `<div class="prop-card" style="text-align:center;padding:24px 12px;color:var(--muted)">
+        <div style="font-size:24px;margin-bottom:6px">👆</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px">មិនទាន់បានជ្រើសរើសឧបករណ៍</div>
+        <div style="font-size:12px">សូមចុចលើឧបករណ៍ណាមួយនៅលើផ្ទាំងគូរ ដើម្បីកែប្រែស្លាក លេខជើង និងលក្ខណៈសម្បត្តិ។</div>
+      </div>`;
+    return;
+  }
+
+  // ករណីជ្រើសរើសខ្សែភ្លើង
+  if (!e) {
+    body.innerHTML =
+      `<div class="prop-card">
+        <div class="prop-sec-lbl">ខ្សែភ្លើង (Wire Segment #${state.selW + 1})</div>
+        <div style="font-size:12px;color:var(--muted)">គ្រប់គ្រងស្រទាប់ និងការលុបខ្សែភ្លើងដែលបានជ្រើសរើស។</div>
+        <div class="prop-actions">
+          ${layerBtns}
+          <button class="b del" data-a="delw" style="grid-column:span 2">🗑 លុបខ្សែភ្លើង</button>
+        </div>
+      </div>`;
+    return;
+  }
+
   const d = D[e.type];
 
+  // ករណីជ្រើសរើសអក្សរចំណាំ (Text Label)
   if (d.isText) {
     const curFont = e.fontFamily || "'Noto Sans Khmer', sans-serif";
     const curCol = e.fontColor || '#38bdf8';
@@ -185,15 +245,28 @@ function sheet() {
       ["'JetBrains Mono', monospace", "JetBrains Mono (Code)"]
     ].map(([val, lbl]) => `<option value="${esc(val)}" ${curFont === val ? 'selected' : ''}>${lbl}</option>`).join('');
 
-    sh.innerHTML = `<b>${d.nm}</b>` +
-      `<label>អត្ថបទ <input id="txt-val" value="${esc(e.text || '')}" size="14"></label>` +
-      `<label>Font Family <select id="txt-font">${fontOpts}</select></label>` +
-      `<label>Font Color <input id="txt-col" type="color" value="${esc(curCol)}"></label>` +
-      `<label>Font Size <input id="txt-size" type="number" min="0" max="120" step="1" value="${curSize}" style="width:58px"></label>` +
-      layerBtns +
-      `<button class="b" data-a="lock">${e.locked ? '🔓 ដោះសោ' : '🔒 ចាក់សោ'}</button>` +
-      '<button class="b" data-a="dup">ចម្លង</button>' +
-      '<button class="b del" data-a="del">លុប</button>';
+    body.innerHTML =
+      `<div class="prop-card">
+        <div style="font-weight:700;font-size:14px;color:var(--accent)">${esc(d.nm)} ${e.locked ? '🔒' : ''}</div>
+      </div>` +
+      `<div class="prop-card">
+        <div class="prop-sec-lbl">កែប្រែអក្សរ (Text Properties)</div>
+        <div class="prop-field"><span>ខ្លឹមសារអត្ថបទ</span><input id="txt-val" value="${esc(e.text || '')}"></div>
+        <div class="prop-field"><span>ពុម្ពអក្សរ (Font Family)</span><select id="txt-font">${fontOpts}</select></div>
+        <div class="prop-grid2">
+          <div class="prop-field"><span>ទំហំ (px)</span><input id="txt-size" type="number" min="0" max="120" step="1" value="${curSize}"></div>
+          <div class="prop-field"><span>ពណ៌អក្សរ</span><input id="txt-col" type="color" value="${esc(curCol)}" style="height:33px;padding:2px"></div>
+        </div>
+      </div>` +
+      `<div class="prop-card">
+        <div class="prop-sec-lbl">សកម្មភាព (Actions)</div>
+        <div class="prop-actions">
+          ${layerBtns}
+          <button class="b" data-a="lock">${e.locked ? '🔓 ដោះសោ' : '🔒 ចាក់សោ'}</button>
+          <button class="b" data-a="dup">⧉ ចម្លង</button>
+          <button class="b del" data-a="del" style="grid-column:span 2">🗑 លុប</button>
+        </div>
+      </div>`;
 
     const tv = Q('#txt-val');
     if (tv) { tv.onfocus = push; tv.oninput = () => { e.text = tv.value.slice(0, 80); draw(); }; }
@@ -213,28 +286,61 @@ function sheet() {
     return;
   }
 
-  sh.innerHTML = `<b>${d.nm} ${e.locked ? '🔒' : ''}</b>` +
-    (d.pre !== undefined ? `<label>ស្លាក <input id="tg" value="${esc(e.tag)}" size="5"></label>` : '') +
-    (d.tm ? `<label>វិនាទី <input id="sc" type="number" min="0" step="0.5" value="${e.sec}" style="width:65px"></label>` : '') +
-    pinUI(e, d) +
-    layerBtns +
-    `<button class="b" data-a="lock">${e.locked ? '🔓 ដោះសោ' : '🔒 ចាក់សោ'}</button>` +
-    `<button class="b" data-a="rot" ${e.locked ? 'disabled' : ''}>បង្វិល</button>` +
-    '<button class="b" data-a="dup">ចម្លង</button>' +
-    '<button class="b del" data-a="del">លុប</button>';
+  // ករណីជ្រើសរើសឧបករណ៍អគ្គិសនីទូទៅ
+  let html =
+    `<div class="prop-card">
+      <div style="font-weight:700;font-size:14px;color:var(--accent)">${esc(d.nm)} ${e.locked ? '🔒' : ''}</div>
+      <div style="font-size:11px;color:var(--muted)">ប្រភេទ៖ ${esc(e.type)} • ជើងភ្ជាប់៖ ${(d.t || []).length}</div>
+    </div>`;
+
+  if (d.pre !== undefined || d.tm) {
+    html += `<div class="prop-card"><div class="prop-sec-lbl">ស្លាកសម្គាល់ & ការកំណត់</div><div class="prop-grid2">`;
+    if (d.pre !== undefined) {
+      html += `<div class="prop-field"><span>ស្លាក (Tag)</span><input id="tg" value="${esc(e.tag)}" maxlength="8"></div>`;
+    }
+    if (d.tm) {
+      html += `<div class="prop-field"><span>ម៉ោង (វិនាទី)</span><input id="sc" type="number" min="0" step="0.5" value="${e.sec}"></div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  const pinsHtml = pinUI(e, d);
+  if (pinsHtml) {
+    html += `<div class="prop-card"><div class="prop-sec-lbl">លេខជើងភ្ជាប់ (Terminals)</div>${pinsHtml}</div>`;
+  }
+
+  html +=
+    `<div class="prop-card">
+      <div class="prop-sec-lbl">សកម្មភាព (Actions)</div>
+      <div class="prop-actions">
+        ${layerBtns}
+        <button class="b" data-a="lock">${e.locked ? '🔓 ដោះសោ' : '🔒 ចាក់សោ'}</button>
+        <button class="b" data-a="rot" ${e.locked ? 'disabled' : ''}>↻ បង្វិល</button>
+        <button class="b" data-a="dup">⧉ ចម្លង</button>
+        <button class="b del" data-a="del">🗑 លុប</button>
+      </div>
+    </div>`;
+
+  body.innerHTML = html;
+
   const tg = Q('#tg'); if (tg) { tg.onfocus = push; tg.oninput = () => { e.tag = tg.value.slice(0, 8); draw(); }; }
   const sc = Q('#sc'); if (sc) { sc.onfocus = push; sc.oninput = () => { e.sec = Math.max(0, +sc.value || 0); draw(); }; }
   bindPins(e, d);
 }
 
 function pinUI(e, d) {
-  if (!d.pins) return '';
+  if (!d.pins || !(d.t || []).length) return '';
   const kind = IEC_KIND[e.type];
-  const pick = kind ? `<label>IEC <select id="iec"><option value="">…</option>${[1, 2, 3, 4].map(n => `<option value="${n}">${iecPins(kind, n).join('/')}</option>`).join('')}</select></label>` : '';
-  return pick + d.t.map((_, i) => `<label>ជើង${i + 1} <input class="pin" data-i="${i}" value="${esc(pinOf(e, i))}" size="3" maxlength="4"></label>`).join('');
+  const pick = kind
+    ? `<div class="prop-field" style="margin-bottom:6px"><span>ស្តង់ដារ IEC</span><select id="iec"><option value="">ជ្រើសរើសលេខជើង…</option>${[1, 2, 3, 4].map(n => `<option value="${n}">${iecPins(kind, n).join(' / ')}</option>`).join('')}</select></div>`
+    : '';
+  const grid = `<div class="prop-grid2">` +
+    d.t.map((_, i) => `<div class="prop-field"><span>ជើងទី ${i + 1}</span><input class="pin" data-i="${i}" value="${esc(pinOf(e, i))}" maxlength="4"></div>`).join('') +
+    `</div>`;
+  return pick + grid;
 }
 function bindPins(e, d) {
-  document.querySelectorAll('#sheet .pin').forEach(inp => {
+  document.querySelectorAll('#sh .pin, #sheet .pin').forEach(inp => {
     inp.onfocus = push;
     inp.oninput = () => { e.pins = e.pins || [...(d.pins || [])]; e.pins[+inp.dataset.i] = inp.value.slice(0, 4); draw(); };
   });
@@ -243,9 +349,9 @@ function bindPins(e, d) {
 }
 
 function panel(m) {
-  ['#lib', '#menu'].forEach(s => Q(s).hidden = s != '#' + m);
-  Q('#bd').hidden = !m;
-  if (m == 'menu') Q('#pn').textContent = state.proj;
+  ['#lib', '#menu'].forEach(s => { const el = Q(s); if (el) el.hidden = s != '#' + m; });
+  const bd = Q('#bd'); if (bd) bd.hidden = !m;
+  if (m == 'menu' && Q('#pn')) Q('#pn').textContent = state.proj;
 }
 
 function modal(t, h, f) {
@@ -604,6 +710,33 @@ window.addEventListener('DOMContentLoaded', () => {
     } else wmPoint(up, !!hit);
   };
 
+  // ភ្ជាប់ប៊ូតុង Properties នៅជ្រុងលើខាងស្តាំ (Toggle, Pin, Collapse)
+  const propToggleBtn = Q('#prop-toggle');
+  const propPinBtn = Q('#prop-pin');
+  const propCloseBtn = Q('#prop-close');
+  if (propToggleBtn) {
+    propToggleBtn.onclick = () => {
+      propOpen = !propOpen;
+      sheet();
+    };
+  }
+  if (propPinBtn) {
+    propPinBtn.onclick = () => {
+      propPinned = !propPinned;
+      propPinBtn.classList.toggle('act', propPinned);
+      if (propPinned) propOpen = true;
+      sheet();
+    };
+  }
+  if (propCloseBtn) {
+    propCloseBtn.onclick = () => {
+      propOpen = false;
+      propPinned = false;
+      if (propPinBtn) propPinBtn.classList.remove('act');
+      sheet();
+    };
+  }
+
   svg.onwheel = ev => { ev.preventDefault(); zoomAt(ev.clientX, ev.clientY, ev.deltaY < 0 ? 1.15 : 1 / 1.15); draw(); };
 
   const mccInput = Q('#mcc-input');
@@ -665,18 +798,15 @@ window.addEventListener('DOMContentLoaded', () => {
         if (tpName.startsWith('btn') || tpName.startsWith('ic_button')) {
           state.pressed.add(e.id); vib(); tick(); return;
         }
-        // ពិនិត្យប្រភេទឧបករណ៍បិទ/បើកជាប់ (Toggle)៖ កុងតាក់ ប្រេកគ័រ E-Stop កុងតាក់កង់រមៀល និងហ្វុយស៊ីប (F1..F4)
-        // ពេលចុចម្តងវានឹងប្តូរស្ថានភាព (ពីជាប់ទៅចំហ ឬពីចំហទៅជាប់) រួចគណនាចរន្តអគ្គិសនីឡើងវិញភ្លាម
         if (tpName.startsWith('sw') || tpName.startsWith('brk') || tpName === 'estop' || tpName === 'fuse' ||
             tpName.startsWith('ic_switch') || tpName.startsWith('ic_breaker') || tpName.startsWith('ic_tmbreaker') ||
             tpName.startsWith('ic_rcbo') || tpName.startsWith('ic_rccb') || tpName.startsWith('ic_motorbreaker') ||
             tpName.startsWith('ic_isolator') || tpName.startsWith('ic_emergency') || tpName.startsWith('ic_roller') ||
             tpName.startsWith('ic_fuse')) {
-          // បើឧបករណ៍មានក្នុងបញ្ជី state.tog ហើយ -> ដកចេញ (ត្រឡប់ទៅស្ថានភាពដើម); បើមិនទាន់មាន -> បន្ថែមចូល (ប្តូរស្ថានភាព)
-              state.tog.has(e.id) ? state.tog.delete(e.id) : state.tog.add(e.id); 
-              vib(); // បញ្ជាឱ្យទូរស័ព្ទញ័រតិចៗពេលចុច
-              tick(); // គណនាចរន្តអគ្គិសនី និងគូររូបភាពសៀគ្វីឡើងវិញភ្លាមៗ
-              return;
+          state.tog.has(e.id) ? state.tog.delete(e.id) : state.tog.add(e.id);
+          vib();
+          tick();
+          return;
         }
       }
       state.mode = pan(); return;
@@ -754,8 +884,7 @@ window.addEventListener('DOMContentLoaded', () => {
     draw();
   };
 
-  // គាំទ្រទាំងការចុច (Click) និងការចាប់អូសទាញ (Pointer Drag & Drop) ពីបណ្ណាល័យ (#grid) ទៅកាន់ Canvas
-  // ជំនួសចាប់ពី const buildLib = () => { រហូតដល់មុន loadSettings({ rebuild: buildLib });
+  // បណ្ណាល័យឧបករណ៍ (#grid) ជាមួយ Tooltip ការពារដាច់គែម និង Drag & Drop
   const gridEl = Q('#grid');
   let libTip = Q('#lib-tip');
   if (!libTip) {
@@ -764,7 +893,15 @@ window.addEventListener('DOMContentLoaded', () => {
     libTip.hidden = true;
     document.body.appendChild(libTip);
   }
-   // ជំនួសត្រង់ showTip និង gridEl.addEventListener('pointerdown', ...) ក្នុង js/main.js
+
+  const isPhoneDevice = () => {
+    const ua = navigator.userAgent || '';
+    if (/iPad|Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return false;
+    if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false;
+    if (/iPhone|iPod|Android.*Mobile|Windows Phone|BlackBerry/i.test(ua)) return true;
+    return Math.min(window.innerWidth, window.innerHeight) < 600;
+  };
+
   let tipTimer = null;
   const showTip = tile => {
     if (!tile || !tile.dataset.nm) { libTip.hidden = true; return; }
@@ -778,7 +915,6 @@ window.addEventListener('DOMContentLoaded', () => {
       `top:${Math.max(44, r.top - 6)}px;`;
     libTip.hidden = false;
 
-    // វាស់ទទឹងពិតរបស់ផ្ទាំងអក្សរ រួចតម្រឹមចំកណ្ដាលឧបករណ៍ដោយមិនឱ្យលយហួសគែមឆ្វេង/ស្តាំអេក្រង់ (8px)
     const tipW = libTip.offsetWidth;
     const idealLeft = r.left + r.width / 2 - tipW / 2;
     const safeLeft = Math.max(8, Math.min(window.innerWidth - tipW - 8, idealLeft));
@@ -789,6 +925,10 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   const hideTip = () => { clearTimeout(tipTimer); libTip.hidden = true; };
 
+  gridEl.addEventListener('pointerover', ev => {
+    const tile = ev.target.closest('.tile[data-nm]');
+    if (tile && ev.pointerType === 'mouse') showTip(tile);
+  });
   gridEl.addEventListener('click', ev => {
     const tile = ev.target.closest('.tile[data-nm]');
     if (tile && isPhoneDevice()) showTip(tile);
@@ -797,6 +937,16 @@ window.addEventListener('DOMContentLoaded', () => {
     if (ev.pointerType === 'mouse' && !gridEl.contains(ev.relatedTarget)) hideTip();
   });
   gridEl.addEventListener('scroll', hideTip, { passive: true });
+
+  const filterLib = () => {
+    const catVal = Q('#cat')?.value || '*';
+    const qVal = (Q('#q')?.value || '').trim().toLowerCase();
+    document.querySelectorAll('.tile').forEach(t => {
+      const matchCat = catVal === '*' || t.dataset.k === catVal;
+      const matchQ = !qVal || (t.dataset.nm || '').toLowerCase().includes(qVal) || (t.dataset.add || '').toLowerCase().includes(qVal);
+      t.hidden = !(matchCat && matchQ);
+    });
+  };
 
   const buildLib = () => {
     const lang = state.opt.lang === 'en' ? 'en' : 'km';
@@ -823,20 +973,14 @@ window.addEventListener('DOMContentLoaded', () => {
       const inner = libR === 1
         ? `<g transform="rotate(90)">${d.d(e, st0)}</g>`
         : d.d(e, st0);
-      const hiddenAttr = curCat !== '*' && d.k !== curCat ? ' hidden' : '';
-      return `<button class="tile" data-add="${t}" data-k="${d.k}" data-nm="${esc(d.nm)}"${hiddenAttr}><svg viewBox="${vb}">${inner}</svg></button>`;
+      return `<button class="tile" data-add="${t}" data-k="${d.k}" data-nm="${esc(d.nm)}"><svg viewBox="${vb}">${inner}</svg></button>`;
     }).join('');
+    filterLib();
   };
-  Q('#cat').onchange = e => document.querySelectorAll('.tile').forEach(t => t.hidden = e.target.value != '*' && t.dataset.k != e.target.value);
+  Q('#cat').onchange = filterLib;
+  if (Q('#q')) Q('#q').oninput = filterLib;
 
- // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត — បិទតែលើទូរស័ព្ទដៃប៉ុណ្ណោះ
-  const isPhoneDevice = () => {
-    const ua = navigator.userAgent || '';
-    if (/iPad|Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return false; // iPad
-    if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false; // Android Tablet
-    if (/iPhone|iPod|Android.*Mobile|Windows Phone|BlackBerry/i.test(ua)) return true; // ទូរស័ព្ទដៃ
-    return Math.min(window.innerWidth, window.innerHeight) < 600;
-  };
+  // Drag & Drop ប្រើបានលើកុំព្យូទ័រ និងថេប្លេត — បិទតែលើទូរស័ព្ទដៃប៉ុណ្ណោះ
   let libDrag = null;
   const clearLibDrag = () => { if (libDrag?.ghost) libDrag.ghost.remove(); libDrag = null; };
 
@@ -880,6 +1024,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
   window.addEventListener('pointercancel', clearLibDrag);
+
   loadSettings({ rebuild: buildLib });
   applySettings();
   initShell(A, { refreshSheet: sheet, rebuildLib: buildLib });
@@ -901,7 +1046,6 @@ window.addEventListener('DOMContentLoaded', () => {
     else if (A[d.a]) A[d.a]();
   };
 
-
   state.els = [];
   state.wires = [];
   state.nid = 1;
@@ -914,4 +1058,4 @@ window.addEventListener('DOMContentLoaded', () => {
   fitScreen();
   tbar();
   stat();
-}); 
+});

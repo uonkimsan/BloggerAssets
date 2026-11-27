@@ -58,8 +58,8 @@ export function draw() {
     // គ្រាប់ស្វ៊ែអេឡិចត្រុងសេរីមូលរត់តាមខ្សែភ្លើង (Free Electron Spheres)
     if (fd) {
       const off = (fd > 0 ? -electronPhase : electronPhase).toFixed(2);
-      h += `<path d="${d}" filter="uopacity: 0.38" style="fill:none;stroke:#fef08a;stroke-width:4.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
-      h += `<path d="${d}" style="fill:none;stroke:#ffffff;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
+      h += `<path d="${d}" style="fill:none;stroke:#fef08a;stroke-width:5.4;opacity:0.38;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
+      h += `<path d="${d}" style="fill:none;stroke:#ffffff;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:0.1 17.9;stroke-dashoffset:${off};pointer-events:none"/>`;
     }
   });
   Object.keys(deg).forEach(k => { if (deg[k] > 2) { const [x, y] = k.split(','); h += `<circle class="dot" cx="${x * G}" cy="${y * G}" r="2.2" style="fill:${col(k)}"/>`; } });
@@ -68,12 +68,13 @@ export function draw() {
   state.els.forEach(e => {
     const d = D[e.type];
     const res = (state.sim && state.live && d.ld) ? state.live.en(e) : false;
+    const isAutoSwitch = d.k === 'A' || d.k === 'T' || e.type === 'ic_phaseFailure';
     const st = {
       on: !!(res && res.on && !state.live.short),
       dir: res ? res.dir : 1,
       spd: res ? (res.spd || 1) : 1,
-      cl: cond(e),
-      pr: state.pressed.has(e.id),
+      cl: (!state.sim && isAutoSwitch) ? false : cond(e),
+      pr: state.sim && state.pressed.has(e.id),
       tr: state.tripped.has(e.tag),
       a: state.ang
     };
@@ -138,7 +139,7 @@ export function draw() {
       }
     });
   });
- 
+
   // គូរខ្សែដាច់ៗពេលកំពុងអូសតភ្ជាប់ខ្សែថ្មី ជាមួយសញ្ញា Snap ពណ៌បៃតងពេលចំជើងឧបករណ៍
   if (state.mode && state.mode.k == 'wire') {
     const [x1, y1] = state.mode.a, [x2, y2] = state.mode.c;
