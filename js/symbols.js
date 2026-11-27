@@ -331,7 +331,9 @@ export function applyIcons(D, G, COL) {
 
     const x0 = ox - cx * S, y0 = oy - cy * S;
     const x1 = x0 + ic.w * S, y1 = y0 + ic.h * S;
-    const bb = [Math.min(x0, -12), Math.min(y0, -12), Math.max(x1, 12), Math.max(y1, 12)];
+    const bb = name === 'sourceL1L2L3N'
+      ? [-67, -42, 7, 4]
+      : [Math.min(x0, -12), Math.min(y0, -12), Math.max(x1, 12), Math.max(y1, 12)];
 
     let srcN = undefined;
     let multiSrc = undefined;
@@ -374,6 +376,14 @@ export function applyIcons(D, G, COL) {
       ...(tmMode ? { tm: tmMode } : {}),
       ...(condFn ? { c: condFn } : {}),
       d: (e, s) => {
+        if (name === 'sourceL1L2L3N') {
+          return ['L3', 'L2', 'L1', 'N'].map((ph, i) => {
+            const x = (i - 3) * 20, c = brightSrcCol(ph, COL[ph]);
+            return `<path d="M${x} 0V-28" style="stroke:${c};stroke-width:1.8"/>` +
+                   `<circle cx="${x}" cy="-34" r="6" style="stroke:${c};stroke-width:1.6;fill:${c}28"/>` +
+                   uprightText(e, ph, x, -34, 7.5, c);
+          }).join('');
+        }
         let f = 0;
         if (is3Pos) {
           f = (state.multiPos?.[e.id] || 0) % (ic.fr.length || 1);
