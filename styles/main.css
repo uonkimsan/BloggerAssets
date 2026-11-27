@@ -379,3 +379,12 @@ pointer-events: none;
 box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 #lib-tip[hidden] { display: none; }
+@media (max-width: 767px) {
+#lib {
+width: min(215px, 60vw);
+}
+#grid {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 8px;
+}
+}
