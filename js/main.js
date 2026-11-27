@@ -764,21 +764,34 @@ window.addEventListener('DOMContentLoaded', () => {
     libTip.hidden = true;
     document.body.appendChild(libTip);
   }
+   // ជំនួសត្រង់ showTip និង gridEl.addEventListener('pointerdown', ...) ក្នុង js/main.js
+  let tipTimer = null;
   const showTip = tile => {
     if (!tile || !tile.dataset.nm) { libTip.hidden = true; return; }
     const r = tile.getBoundingClientRect();
     libTip.textContent = tile.dataset.nm;
-    libTip.style.left = Math.max(60, Math.min(window.innerWidth - 60, r.left + r.width / 2)) + 'px';
-    libTip.style.top = Math.max(36, r.top - 6) + 'px';
+    libTip.style.cssText =
+      'position:fixed;z-index:99999;transform:translateY(-100%);padding:6px 12px;border-radius:8px;' +
+      'background:var(--accent,#0284c7);color:#fff;font-size:13px;font-weight:700;white-space:nowrap;' +
+      'max-width:calc(100vw - 16px);overflow:hidden;text-overflow:ellipsis;' +
+      'pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.35);left:8px;' +
+      `top:${Math.max(44, r.top - 6)}px;`;
     libTip.hidden = false;
-  };
-  const hideTip = () => { libTip.hidden = true; };
 
-  gridEl.addEventListener('pointerover', ev => {
-    if (ev.pointerType === 'mouse') {
-      const tile = ev.target.closest('.tile[data-nm]');
-      tile ? showTip(tile) : hideTip();
-    }
+    // វាស់ទទឹងពិតរបស់ផ្ទាំងអក្សរ រួចតម្រឹមចំកណ្ដាលឧបករណ៍ដោយមិនឱ្យលយហួសគែមឆ្វេង/ស្តាំអេក្រង់ (8px)
+    const tipW = libTip.offsetWidth;
+    const idealLeft = r.left + r.width / 2 - tipW / 2;
+    const safeLeft = Math.max(8, Math.min(window.innerWidth - tipW - 8, idealLeft));
+    libTip.style.left = safeLeft + 'px';
+
+    clearTimeout(tipTimer);
+    if (isPhoneDevice()) tipTimer = setTimeout(() => { libTip.hidden = true; }, 1600);
+  };
+  const hideTip = () => { clearTimeout(tipTimer); libTip.hidden = true; };
+
+  gridEl.addEventListener('click', ev => {
+    const tile = ev.target.closest('.tile[data-nm]');
+    if (tile && isPhoneDevice()) showTip(tile);
   });
   gridEl.addEventListener('pointerout', ev => {
     if (ev.pointerType === 'mouse' && !gridEl.contains(ev.relatedTarget)) hideTip();
