@@ -914,4 +914,4 @@ window.addEventListener('DOMContentLoaded', () => {
   fitScreen();
   tbar();
   stat();
-});
+}); 
